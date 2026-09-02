@@ -1,258 +1,184 @@
-/* STUDIO_LOCAL_AI — motor de geração 100% local */
+/* STUDIO_LOCAL_AI — motor de geração e edição 100% local, sem APIs */
 (() => {
 "use strict";
 const D=window.STUDIO_DATA;
 const $=s=>document.querySelector(s);
-const state={category:"hamburgueria",style:"Moderno",goal:"Vendas",name:"",command:"",seed:0,html:""};
+const state={category:"hamburgueria",style:"Moderno",goal:"Vendas",name:"",command:"",seed:0,html:"",history:[],future:[],memory:{}};
+
 const semantic={
- "moderno":["moderno","moderna","contemporaneo","contemporânea","atual","urbano","clean","modern"],
- "luxuoso":["luxuoso","luxuosa","elegante","sofisticado","sofisticada","premium","exclusivo","exclusiva","luxury"],
- "barato":["barato","barata","economico","econômico","acessivel","acessível","preco justo","bom custo beneficio","bom custo-beneficio"],
- "rapido":["rapido","rápido","agil","ágil","pratico","prático","sem complicacao","sem complicação","fast"],
- "vendas":["vendas","venda","pedido","pedir","comprar","compra","promocao","promoção","oferta","sales"],
- "agendamento":["agendamento","agendar","marcar","marque","horario","horário","reservar","reserva","appointment"],
- "hamburgueria":["hamburgueria","hamburgueri","hamburguerias","burgueria","burguerias","burger","hamburger","hamburguer"],
- "pizzaria":["pizzaria","pizaria","pissaria","pizzariaa","pizzarias","pizza","pizzas"],
- "restaurante":["restaurante","restaurantes","restalrante","restauramte","restaurant"],
- "clinica":["clinica","clínica","clinicaa","clinicas","clínicas","clinic"],
- "barbearia":["barbearia","barbeari","barbearias","barber","barbershop"],
- "mercado":["mercado","mercadoo","mercados","market","supermercado"],
- "preco":["preco","preços","precos","preço","valor","valores","price","prices","cost"],
- "remover":["remover","remove","removeu","tirar","tira","tira aí","tira ai","retirar","retira","apagar","apaga","excluir","exclui","deletar","delete","deleta","hide","sem"],
- "adicionar":["adicionar","add","adiciona","colocar","coloca","botar","bota","inserir","insere","criar","cria","insert"],
- "alterar":["mudar","muda","trocar","troca","alterar","altera","modificar","modifica","change","edit","edita"],
- "desfazer":["desfazer","desfaz","volta","voltar","como tava","como estava","undo"],
- "design":["bonito","bonita","lindo","linda","brabo","braba","maneiro","maneira","sinistro","chave","impactante","bonitão","bonitao","beautiful"],
- "botao":["botao","botão","botoes","botões","button","buttons"],
- "hero":["hero","capa","banner","cabecalho","cabeçalho","principal","imagem maior","hero maior"],
- "menu":["menu","cardapio","cardápio","cardapio","catalogo","catálogo"],
- "contato":["contato","contact","fale conosco","whatsapp","telefone"],
- "secao":["secao","seção","parte","bloco","section","bagulho","isso","this"],
- "gira_carioca":["mano","irmão","irmao","cara","cria","pô","po","qual foi","mó","mo","tá ligado","ta ligado","bota aí","bota ai","tira aí","tira ai","faz aí","faz ai","manda ver","deixa chave","deixa brabo","ficou maneiro","bagulho"]
+ moderno:["moderno","moderna","contemporaneo","contemporânea","atual","urbano","clean","modern"],
+ luxuoso:["luxuoso","luxuosa","elegante","sofisticado","sofisticada","premium","exclusivo","exclusiva","luxury"],
+ barato:["barato","barata","economico","econômico","acessivel","acessível","preco justo","bom custo beneficio","bom custo-beneficio"],
+ rapido:["rapido","rápido","agil","ágil","pratico","prático","fast"],
+ vendas:["vendas","venda","pedido","pedir","comprar","compra","promocao","promoção","oferta","sales"],
+ agendamento:["agendamento","agendar","marcar","marque","horario","horário","reservar","reserva","appointment"],
+ hamburgueria:["hamburgueria","hamburgueri","burgueria","burguer","burger","hamburger","hamburguer"],
+ pizzaria:["pizzaria","pizaria","pissaria","pisaria","pizzariaa","pizza","pizzas"],
+ restaurante:["restaurante","restalrante","restauramte","restaurant"],
+ clinica:["clinica","clínica","clinicaa","clinicas","clínicas","clinic"],
+ barbearia:["barbearia","barbeari","barber","barbershop"],
+ mercado:["mercado","mercadoo","market","supermercado"],
+ preco:["preco","preços","precos","preço","valor","valores","price","prices","cost"],
+ remover:["remover","remove","removerr","removeu","remober","tirar","tira","retirar","retira","apagar","apaga","excluir","exclui","deletar","delete","deleta","hide","sem","sumir","esconder","ocultar"],
+ adicionar:["adicionar","add","adiciona","colocar","coloca","botar","bota","por","pôr","inserir","insere","criar","cria","acrescentar","insert"],
+ alterar:["mudar","muda","trocar","troca","alterar","altera","modificar","modifica","editar","edita","substituir","substitui","change","edit","replace"],
+ desfazer:["desfazer","desfaz","volta","voltar","undo"],
+ refazer:["refazer","refaz","redo","novamente"],
+ design:["bonito","bonita","lindo","linda","brabo","braba","maneiro","maneira","sinistro","chave","impactante","bonitao","beautiful","profissional","melhora","melhorar","arruma","ajeita"],
+ botao:["botao","botão","botoes","botões","button","buttons"],
+ hero:["hero","capa","banner","cabecalho","cabeçalho","principal","imagem maior","hero maior"],
+ menu:["menu","cardapio","cardápio","catalogo","catálogo"],
+ contato:["contato","contact","fale conosco"],
+ secao:["secao","seção","parte","bloco","section","bagulho","parada","negocio","negócio","treco","isso","this"],
+ produto:["produto","produtos","item","itens","product","products"],
+ servico:["servico","serviço","servicos","serviços","service","services"],
+ imagem:["imagem","imagens","image","images","foto","fotos","imgem","imajem"],
+ fundo:["fundo","background","bg"],
+ fonte:["fonte","font","tipografia","typeface"],
+ cor:["cor","cores","color","colors"],
+ tamanho:["tamanho","size","maior","menor","bigger","smaller"],
+ localizacao:["localizacao","localização","endereco","endereço","mapa","maps","location"],
+ horario:["horario","horários","horarios","hours","opening"],
+ depoimento:["depoimento","depoimentos","testimonial","testimonials"],
+ faq:["faq","duvidas","dúvidas","perguntas"],
+ galeria:["galeria","gallery"],
+ promocao:["promocao","promoção","promocoes","promoções","oferta","offers"],
+ animacao:["animacao","animação","animacoes","animações","animation","animations"],
+ ordem:["ordem","order","reordenar","reorganizar","organizar"],
+ duplicar:["duplicar","duplica","outro igual","duplicate","copy"],
+ gira:["mano","irmão","irmao","cara","cria","pô","po","mó","mo","tá ligado","ta ligado","bota aí","bota ai","tira aí","tira ai","faz aí","faz ai","manda ver","deixa chave","deixa brabo","bagulho","parada","treco"]
 };
+const typoMap={renover:"remover",renove:"remover",renovei:"remover",remober:"remover",removerr:"remover",pizaria:"pizzaria",pissaria:"pizzaria",pisaria:"pizzaria",pizzariaa:"pizzaria",burgueria:"hamburgueria",burgueri:"hamburgueria",hamburgueri:"hamburgueria",barbeari:"barbearia",clinicaa:"clinica",restalrante:"restaurante",mercadoo:"mercado",precoo:"preco",precooo:"preco",precos:"preco",preços:"preco",valores:"preco",prices:"preco",boto:"botao",botao:"botao",secao:"secao",seção:"secao",imajem:"imagem",imgem:"imagem",subtitulo:"subtitulo",titulo:"titulo",endereco:"endereco",localizacao:"localizacao",contatoo:"contato",wats:"whatsapp",wpp:"whatsapp",whats:"whatsapp",zap:"whatsapp",zapzap:"whatsapp",modern:"moderno",moderna:"moderno"};
 
-const typoMap={
- "renover":"remover","renove":"remover","renovei":"remover",
- "pizaria":"pizzaria","pissaria":"pizzaria","pizzariaa":"pizzaria",
- "burgueria":"hamburgueria","burgueri":"hamburgueria","hamburgueri":"hamburgueria",
- "barbeari":"barbearia","clinicaa":"clinica","restalrante":"restaurante",
- "mercadoo":"mercado","precoo":"preco","precooo":"preco","precos":"preco",
- "preços":"preco","valores":"preco","prices":"preco",
- "removeu":"remover","removee":"remover","tiraaa":"remover","tirar":"remover",
- "boto":"botao","botao":"botao","secao":"secao","seção":"secao",
- "moderna":"moderno","modern":"moderno","dark":"dark","more":"mais"
-};
-
-const intentPatterns={
- REMOVE_PRICE:[
-  /\b(tira|tirar|remove|remover|retira|retirar|apaga|apagar|exclui|excluir|deleta|deletar|hide|delete)\b.*\b(preco|precos|valor|valores|price|prices|cost)\b/i,
-  /\b(preco|precos|preços|valor|valores|price|prices|cost)\b.*\b(sem|remove|tir|apaga|exclui|deleta|hide|delete)\b/i
- ],
- ADD_BUTTON:[
-  /\b(bota|botar|coloca|colocar|adiciona|adicionar|add|insert|cria|criar)\b.*\b(botao|button)\b/i
- ],
- CHANGE_HERO:[
-  /\b(change|muda|mudar|troca|trocar|altera|alterar)\b.*\b(hero|capa|banner)\b/i
- ],
- MODERNIZE:[
-  /\b(deixa|faz|make|change|tornar|torna)\b.*\b(mais )?(moderno|moderna|modern|brabo|braba|maneiro|chave|impactante|bonito|bonita)\b/i
- ],
- UNDO:[/\b(volta|voltar|desfaz|desfazer|undo)\b.*\b(como tava|como estava|isso|último|ultimo)?\b/i]
-};
-
-function normalize(s){
- return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()
-   .replace(/(.)\1{2,}/g,"$1$1").replace(/[^\w\s$.-]/g," ").replace(/\s+/g," ").trim();
-}
+function normalize(s){return String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/(.)\1{2,}/g,"$1$1").replace(/[^\w\s$.:\/@?&=+\-#%]/g," ").replace(/\s+/g," ").trim()}
 function tokenize(s){return normalize(s).split(/\s+/).filter(Boolean)}
-function levenshtein(a,b){
- const prev=Array.from({length:b.length+1},(_,i)=>i);
- for(let i=1;i<=a.length;i++){
-  const cur=[i];
-  for(let j=1;j<=b.length;j++) cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
-  for(let j=0;j<cur.length;j++) prev[j]=cur[j];
- }
- return prev[b.length];
-}
-function canonicalize(text){
- let tokens=tokenize(text);
- return tokens.map(t=>{
-   if(typoMap[t]) return typoMap[t];
-   let best=t,bestD=99;
-   for(const [k,v] of Object.entries(typoMap)){
-     const d=levenshtein(t,k);
-     if(d<=Math.max(1,Math.floor(k.length*.25)) && d<bestD){bestD=d;best=v}
-   }
-   return best;
- }).join(" ");
-}
-function hasIntent(text, intent){
- const n=canonicalize(text);
- return (intentPatterns[intent]||[]).some(rx=>rx.test(n));
-}
-function semanticScore(text,key){
- const n=canonicalize(text), words=semantic[key]||[];
- return words.reduce((score,w)=>score+(n.includes(normalize(w))?1:0),0);
-}
-function detectElement(text){
- const n=canonicalize(text);
- if(semanticScore(n,"preco"))return "preços";
- if(semanticScore(n,"botao"))return "botão";
- if(semanticScore(n,"hero"))return "hero";
- if(semanticScore(n,"menu"))return "menu";
- if(semanticScore(n,"contato"))return "contato";
- if(semanticScore(n,"secao"))return "seção";
- return null;
-}
-function interpretCommand(text){
- const n=canonicalize(text);
- let category=null,style=null,goal=null;
- const cats=["hamburgueria","pizzaria","restaurante","clinica","barbearia","mercado"];
- for(const c of cats)if(semanticScore(n,c)>0){category=c;break}
- if(semanticScore(n,"moderno")>0)style="Moderno";
- else if(semanticScore(n,"luxuoso")>0)style="Luxuoso";
- if(semanticScore(n,"agendamento")>0)goal="Agendamento";
- else if(semanticScore(n,"vendas")>0)goal="Vendas";
- let action="generate",element=detectElement(n);
- if(hasIntent(n,"REMOVE_PRICE") || (semanticScore(n,"preco")>0 && /\bsem\b/.test(n)))action="remove_price";
- else if((semanticScore(n,"botao")>0 && /\b(pedido|pedir|order)\b/.test(n)) || hasIntent(n,"ADD_BUTTON"))action="add_button";
- else if(hasIntent(n,"CHANGE_HERO"))action="change_hero";
- else if(hasIntent(n,"MODERNIZE"))action="modernize";
- else if(hasIntent(n,"UNDO"))action="undo";
- return {raw:text,normalized:n,action,element,category,style,goal,confidence:Math.min(1,(Object.values({category,style,goal,element}).filter(Boolean).length+.5)/4)};
-}
+function levenshtein(a,b){const prev=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const cur=[i];for(let j=1;j<=b.length;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));for(let j=0;j<cur.length;j++)prev[j]=cur[j]}return prev[b.length]}
+function canonicalize(text){return tokenize(text).map(t=>{if(typoMap[t])return typoMap[t];let best=t,bd=99;for(const [k,v] of Object.entries(typoMap)){const d=levenshtein(t,k);if(d<=Math.max(1,Math.floor(k.length*.25))&&d<bd){bd=d;best=v}}return best}).join(" ")}
+function has(text,...terms){const n=canonicalize(text);return terms.some(t=>{const q=normalize(t);return q.includes(" ")?n.includes(q):new RegExp("(^|\\s)"+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"($|\\s)").test(n)})}
+function semanticScore(text,key){const n=canonicalize(text),words=semantic[key]||[];return words.reduce((s,w)=>s+(n.includes(normalize(w))?1:0),0)}
+function detectCategory(n){for(const c of ["hamburgueria","pizzaria","restaurante","clinica","barbearia","mercado"])if(semanticScore(n,c))return c;return null}
+function extractUrl(text){const m=String(text||"").match(/https?:\/\/[^\s]+/i);return m?m[0].replace(/[),.;]+$/g,""):null}
+function extractPhone(text){const m=String(text||"").match(/(?:\+?55\s*)?(?:\(?\d{2}\)?\s*)?\d{4,5}[\s.-]?\d{4}/);return m?m[0].replace(/\D/g,""):null}
+function extractPhones(text){const r=/(?:\+?55\s*)?(?:\(?\d{2}\)?\s*)?\d{4,5}[\s.-]?\d{4}/g;return [...String(text||"").matchAll(r)].map(m=>m[0].replace(/\D/g,"")).filter((v,i,a)=>a.indexOf(v)===i)}
+function extractEmail(text){const m=String(text||"").match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);return m?m[0]:null}
+function extractQuoted(text){const q=String(text||"").match(/["“”']([^"“”']+)["“”']/);return q?q[1].trim():null}
+function socialFromText(n){const map=[
+ ["whatsapp",/(whatsapp|wpp|wats|zap|zapzap)/],["instagram",/(instagram|insta)/],["facebook",/(facebook|face)/],["tiktok",/(tiktok|tik tok)/],["youtube",/(youtube|yt)/],["telegram",/telegram/],["linkedin",/linkedin/],["x",/(x|twitter)/],["threads",/threads/],["discord",/discord/],["pinterest",/pinterest/],["google maps",/google maps|maps/],["site",/(site|website|nosso site)/]
+ ];return map.filter(x=>x[1].test(n)).map(x=>x[0])}
+function contactKind(n){if(/\b(whatsapp|wpp|wats|zap|zapzap)\b/.test(n))return "whatsapp";if(/\b(telefone|fone|celular|phone)\b/.test(n))return "telefone";if(/\b(email|e-mail|mail)\b/.test(n))return "email";const s=socialFromText(n);return s[0]||null}
+function detectElement(text){const n=canonicalize(text);if(semanticScore(n,"preco"))return "preços";if(semanticScore(n,"botao"))return "botão";if(semanticScore(n,"hero"))return "hero";if(semanticScore(n,"menu"))return "menu";if(semanticScore(n,"contato"))return "contato";if(semanticScore(n,"imagem"))return "imagens";if(semanticScore(n,"fundo"))return "fundo";if(semanticScore(n,"fonte"))return "fonte";if(semanticScore(n,"localizacao"))return "localização";if(semanticScore(n,"produto"))return "produtos";if(semanticScore(n,"servico"))return "serviços";if(semanticScore(n,"secao"))return "seção";return null}
 
-function normalize(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()}
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function cleanText(s){
- s=String(s??"").replace(/\\n/g," ").replace(/\s+/g," ").trim();
- const bad=["undefined","null","NaN","Lorem ipsum","Seu texto aqui","Digite aqui"];
- bad.forEach(x=>{if(normalize(s)===normalize(x))s=""});
- return s;
+function learnFromCommand(text){const raw=String(text||"");const m=raw.match(/quando eu falar\s+["“”]?([\w-]+)["“”]?\s+(?:quero dizer|significa)\s+(.+)/i);if(!m)return false;const key=normalize(m[1]),meaning=normalize(m[2].trim());state.memory[key]=meaning;localStorage.setItem("studio_ai_memory",JSON.stringify(state.memory));return true}
+function applyLearnedTerms(text){let n=normalize(text);for(const [k,v] of Object.entries(state.memory||{})){if(k)n=n.replace(new RegExp("(^|\\s)"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"($|\\s)","g"),"$1"+v+"$2")}return canonicalize(n)}
+function loadMemory(){try{state.memory=JSON.parse(localStorage.getItem("studio_ai_memory")||"{}")}catch{state.memory={}}}
+function interpretCommand(text){
+ const raw=String(text||""); if(learnFromCommand(raw))return {raw,normalized:n,action:"learn",ops:[],confidence:1};
+ const n=applyLearnedTerms(raw); const ops=[]; const cat=detectCategory(n); const style=semanticScore(n,"luxuoso")?"Luxuoso":semanticScore(n,"moderno")?"Moderno":null; const goal=semanticScore(n,"agendamento")?"Agendamento":semanticScore(n,"vendas")?"Vendas":null;
+ const phones=extractPhones(raw), phone=phones[0]||null, email=extractEmail(raw), url=extractUrl(raw); let ck=phone?"whatsapp":contactKind(n), social=[...new Set([/\bwhatsapp\b/.test(n)?"whatsapp":null,/\b(instagram|insta)\b/.test(n)?"instagram":null,/\bfacebook\b/.test(n)?"facebook":null,/\btiktok\b/.test(n)?"tiktok":null,/\byoutube\b/.test(n)?"youtube":null,/\btelegram\b/.test(n)?"telegram":null,/\blinkedin\b/.test(n)?"linkedin":null,/\b(x|twitter)\b/.test(n)?"x":null,/\bthreads\b/.test(n)?"threads":null,/\bdiscord\b/.test(n)?"discord":null,/\bpinterest\b/.test(n)?"pinterest":null,/\bgoogle maps|maps\b/.test(n)?"google maps":null,/\b(site|website|nosso site)\b/.test(n)?"site":null].filter(Boolean))]; if(url){const u=normalize(url);if(/instagram\.com/.test(u))ck="instagram";else if(/facebook\.com/.test(u))ck="facebook";else if(/tiktok\.com/.test(u))ck="tiktok";else if(/youtube\.com|youtu\.be/.test(u))ck="youtube";else if(/t\.me|telegram\./.test(u))ck="telegram";else if(/linkedin\.com/.test(u))ck="linkedin";else if(/twitter\.com|x\.com/.test(u))ck="x";}
+ if(phone)phones.forEach((v,i)=>ops.push({action:"contact",kind:"whatsapp",mode:i?"add":"set",value:v,message:i?null:(n.match(/mensagem (?:e )?(.+?)(?:$)/)||[])[1]||null}));
+ if(url&&ck&&!(/\b(botao|button)\b/.test(n)&&/\b(chamado|chamada|nome|called)\b/.test(n)))ops.push({action:"contact",kind:ck,mode:"set",value:url});
+ if(url&&/\b(botao|button)\b/.test(n)&&/\b(chamado|chamada|nome|called)\b/.test(n)){const label=extractQuoted(raw)||"Nosso Site";ops.push({action:"contact",kind:"custom-"+normalize(label).replace(/[^a-z0-9]+/g,"-"),label,value:url})}
+ if(email&&ck==="email")ops.push({action:"contact",kind:"email",mode:"set",value:email});
+ if(!phone&&!url&&!email&&ck&&/\b(sem|remove|tira|apaga|exclui|delete|retira)\b/.test(n))ops.push({action:"contact",kind:ck,mode:"remove"});
+ if(/\b(deixa so|deixa apenas|somente|apenas)\b/.test(n)&&social.length)ops.push({action:"contact_only",kinds:social});
+ if(/\b(coloca|colocar|adiciona|adicionar|bota|botar|add)\b/.test(n)&&social.length&&!url)ops.push(...social.map(k=>({action:"contact",kind:k,mode:"add"})));
+ if(/\b(telefone|fone|celular|phone)\b/.test(n)&&phone&&!ck)ops.push({action:"contact",kind:"telefone",mode:"set",value:phone});
+ if(has(n,"remove","tirar","retirar","apagar","excluir","deletar","hide")&&semanticScore(n,"preco"))ops.push({action:"remove",element:"preços"});
+ if(has(n,"add","adicionar","colocar","botar","criar")&&semanticScore(n,"botao"))ops.push({action:"add",element:"botão",value:extractQuoted(raw)});
+ if(has(n,"add","adicionar","colocar","botar","criar")&&semanticScore(n,"galeria"))ops.push({action:"add",element:"galeria"});
+ if(has(n,"add","adicionar","colocar","botar","criar")&&semanticScore(n,"promocao"))ops.push({action:"add",element:"promoções"});
+ if(has(n,"add","adicionar","colocar","botar","criar")&&semanticScore(n,"localizacao"))ops.push({action:"add",element:"localização"});
+ if(has(n,"add","adicionar","colocar","botar","criar")&&semanticScore(n,"contato"))ops.push({action:"add",element:"contato"});
+ if(has(n,"add","adicionar","colocar","botar","criar")&&semanticScore(n,"produto")){const m=n.match(/(?:mais|add|adiciona|cria|coloca)\s+(\d+)\s+(?:produto|produtos|itens)/);ops.push({action:"add_products",count:m?Math.min(20,+m[1]):1})}
+ if(has(n,"add","adicionar","colocar","botar","criar")&&semanticScore(n,"depoimento")){const m=n.match(/(?:mais|add|adiciona|cria|coloca)\s+(\d+)\s+(?:depoimento|depoimentos)/);ops.push({action:"add_testimonials",count:m?Math.min(20,+m[1]):1})}
+ if(has(n,"remove","tirar","apagar","excluir","deletar","hide","sem")&&semanticScore(n,"botao")&&!semanticScore(n,"preco"))ops.push({action:"remove",element:"botão"});
+ for(const e of ["galeria","promocao","localizacao","depoimento","faq","secao","banner"]){if(has(n,"remove","tirar","apagar","excluir","deletar","hide")&&semanticScore(n,e))ops.push({action:"remove",element:e});}
+ if(has(n,"remove","tirar","apagar","excluir","deletar","hide")&&/\b(telefone|fone|celular|phone)\b/.test(n))ops.push({action:"contact",kind:"telefone",mode:"remove"});
+ if(has(n,"remove","tirar","apagar","excluir","deletar","hide")&&social.length)ops.push(...social.map(k=>({action:"contact",kind:k,mode:"remove"})));
+ if(has(n,"change","mudar","trocar","alterar","modificar","editar","substituir")&&/\b(nome)\b/.test(n)){const v=extractQuoted(raw)||raw.split(/\bpara\b|\bpor\b/i)[1]?.trim();if(v)ops.push({action:"change",element:"nome",value:v})}
+ if(has(n,"change","mudar","trocar","alterar","modificar","editar","substituir")&&/\b(titulo|title)\b/.test(n)){const v=extractQuoted(raw)||raw.split(/\bpara\b|\bpor\b/i)[1]?.trim();if(v)ops.push({action:"change",element:"título",value:v})}
+ if(has(n,"change","mudar","trocar","alterar","modificar","editar","substituir")&&/\b(subtitulo|subtitle)\b/.test(n)){const v=extractQuoted(raw)||raw.split(/\bpara\b|\bpor\b/i)[1]?.trim();if(v)ops.push({action:"change",element:"subtítulo",value:v})}
+ if(has(n,"change","mudar","trocar","alterar","modificar","editar","substituir")&&semanticScore(n,"fundo")){const v=(n.match(/(?:para|por)\s+(preto|branco|azul|verde|vermelho|escuro|claro)/)||[])[1];ops.push({action:"style",element:"fundo",value:v||"custom"})}
+ if(has(n,"change","mudar","trocar","alterar","modificar","editar","substituir")&&semanticScore(n,"imagem")){ops.push({action:"change",element:"imagens",value:url||null})}
+ if((has(n,"maior","bigger")||/\bgrand[eo]\b/.test(n))&&semanticScore(n,"botao"))ops.push({action:"style",element:"botão",value:"maior"});
+ if((has(n,"menor","smaller")||/\bsmall(er)?\b/.test(n))&&semanticScore(n,"hero"))ops.push({action:"style",element:"hero",value:"menor"});
+ if((has(n,"maior","bigger")||/\bbigger\b/.test(n))&&semanticScore(n,"hero"))ops.push({action:"style",element:"hero",value:"maior"});
+ if(has(n,"modernize","moderno","moderna","brabo","braba","maneiro","chave","bonito","bonita","profissional","melhora","melhorar","arruma","ajeita"))ops.push({action:"style",element:"site",value:"moderno"});
+ if(has(n,"dark","escuro","preto"))ops.push({action:"style",element:"site",value:"dark"});
+ if(has(n,"luxuoso","elegante","sofisticado","premium"))ops.push({action:"style",element:"site",value:"luxuoso"});
+ if(has(n,"simples","minimal","minimalista"))ops.push({action:"style",element:"site",value:"minimal"});
+ if(has(n,"desfaz","desfazer","undo") || /\b(volta|voltar)\b.*\b(como estava|como tava|ultima|última|alteracao|alteracoes|alteração|alterações)\b/.test(n)){const m=n.match(/(?:volta|desfaz)[^\d]*(\d+)/);const word=n.match(/\b(duas|dois|tres|três|quatro|cinco)\b/);const wc={duas:2,dois:2,tres:3,"três":3,quatro:4,cinco:5};ops.push({action:"undo",count:m?Math.min(20,+m[1]):word?wc[word[1]]:1})}
+ if(has(n,"refaz","refazer","redo","novamente"))ops.push({action:"redo",count:1});
+ if(has(n,"duplica","duplicar","outro igual","duplicate","copy"))ops.push({action:"duplicate",element:detectElement(n)||"seção"});
+ const move=/\b(coloca|bota|move|mover|deixa)\b/.test(n)&&/\b(antes|depois|final|topo|cima|baixo|primeiro|ultimo|último)\b/.test(n);if(move)ops.push({action:"move",from:detectElement(n)||"contato",position:/\b(final|ultimo|último|baixo)\b/.test(n)?"end":/\b(topo|primeiro|cima)\b/.test(n)?"start":"before"});
+ if(has(n,"remove","tirar","tira","retirar","apagar","excluir","deletar","hide")&&semanticScore(n,"preco"))ops.push({action:"remove",element:"preços"});
+ if(has(n,"remove","tirar","tira","retirar","apagar","excluir","deletar","hide")&&/\b(subtitulo|subtitle)\b/.test(n))ops.push({action:"remove",element:"subtítulo"});
+ if(has(n,"remove","tirar","tira","retirar","apagar","excluir","deletar","hide")&&semanticScore(n,"imagem"))ops.push({action:"remove",element:"imagens"});
+ if(has(n,"add","adicionar","adiciona","colocar","coloca","botar","bota","criar","cria")&&/\b(galeria|gallery)\b/.test(n))ops.push({action:"add",element:"galeria"});
+ if(has(n,"add","adicionar","adiciona","colocar","coloca","botar","bota","criar","cria")&&/\b(promocao|promocoes|oferta|offers)\b/.test(n))ops.push({action:"add",element:"promocoes"});
+ if(has(n,"add","adicionar","adiciona","colocar","coloca","botar","bota","criar","cria")&&/\b(localizacao|localização|mapa|maps|location)\b/.test(n))ops.push({action:"add",element:"localização"});
+ if(!ops.length&&cat)ops.push({action:"generate"});
+ return {raw,normalized:n,action:ops[0]?.action||"generate",ops,category:cat,style,goal,element:detectElement(n),confidence:Math.min(1,(ops.length?0.35:0.15)+(cat?0.2:0)+(style?0.15:0)+(goal?0.1:0)+(phone||url?0.2:0))};
 }
+function inferCommand(){const parsed=interpretCommand(state.command);state.lastIntent=parsed;if(parsed.category)state.category=parsed.category;if(parsed.style)state.style=parsed.style;if(parsed.goal)state.goal=parsed.goal;return parsed}
+
+function cleanText(s){return String(s??"").replace(/\\n/g," ").replace(/\s+/g," ").trim()}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return h>>>0}
 function pick(a,n){return a[(state.seed+n)%a.length]}
-function inferCommand(){
- const parsed=interpretCommand(state.command);
- state.lastIntent=parsed;
- if(parsed.category)state.category=parsed.category;
- if(parsed.style)state.style=parsed.style;
- if(parsed.goal)state.goal=parsed.goal;
- return parsed;
+function localAI(){inferCommand();const cat=D.categories[state.category];const name=cleanText(state.name)||cat.label.replace(/s$/," ")+((state.seed%80)+1);const color=pick(cat.colors,2),hero=pick(cat.hero,1),sub=pick(cat.sub,3),cta=state.goal==="Agendamento"?"AGENDAR HORÁRIO":state.goal==="Informação"?"CONHECER SERVIÇOS":"QUERO CONHECER";const prices=[29,34,39,44,49,54,59,64].map((x,i)=>({x:x+(state.seed+i)%7}));const items=cat.items.map((x,i)=>({name:x,price:prices[i].x}));const layout=D.layouts[state.seed%D.layouts.length];return buildSite({cat,name,hero,sub,cta,items,layout,color,style:normalize(state.style)});}
+function localImage(key){const c={burger:"#ff6b35",pizza:"#d62828",restaurant:"#8b5e34",clinic:"#2563eb",barber:"#111827",market:"#16a34a"}[key]||"#6366f1";return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="${c}"/><stop offset="1" stop-color="#111827"/></linearGradient></defs><rect width="1200" height="800" fill="url(#g)"/><circle cx="960" cy="150" r="180" fill="white" opacity=".08"/><circle cx="180" cy="690" r="260" fill="white" opacity=".06"/><text x="80" y="370" font-family="Arial" font-size="72" font-weight="700" fill="white">STUDIO SITES</text><text x="84" y="440" font-family="Arial" font-size="30" fill="white" opacity=".82">${String(key).toUpperCase()} • IMAGEM LOCAL</text></svg>`}
+function buildSite(o){const img="data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(localImage(o.cat.image))));const accent=o.color[0],ink=o.color[1];const cards=o.items.slice(0,4).map((it,i)=>`<article class="card"><div class="tag">${i%2?"ESPECIAL":"DESTAQUE"}</div><h3>${escapeHTML(it.name)}</h3><p>${escapeHTML(o.cat.sub[i%o.cat.sub.length])}</p><strong>R$ ${it.price},90</strong></article>`).join("");const benefits=o.cat.benefits.map(x=>`<li>✓ ${escapeHTML(x)}</li>`).join("");const faqs=["Como funciona o atendimento?","Quais são os horários?","Como faço meu pedido ou agendamento?"].map(q=>`<details><summary>${q}</summary><p>Entre em contato para receber informações atualizadas e combinar o melhor atendimento.</p></details>`).join("");let layoutClass=normalize(o.layout);let heroLayout=layoutClass==="split"?`<div class="hero-media"><img src="${img}" alt="Imagem local do segmento"></div>`:`<div class="hero-art"><img src="${img}" alt="Imagem local do segmento"></div>`;if(layoutClass==="minimal")heroLayout="";const sectionOrder=layoutClass==="magazine"?["sobre","cards","benefits","faq"]:["cards","sobre","benefits","faq"];const sections=sectionOrder.map(s=>s==="cards"?`<section data-section="produtos"><div class="section-label">SELEÇÃO DA CASA</div><h2>Feito para dar vontade de voltar.</h2><div class="grid">${cards}</div></section>`:s==="sobre"?`<section class="about" data-section="sobre"><div><div class="section-label">SOBRE</div><h2>Detalhes que fazem a diferença.</h2><p>${escapeHTML(o.sub)}</p><a class="btn" href="#contato">${o.cta}</a></div>${heroLayout}</section>`:s==="benefits"?`<section data-section="beneficios"><div class="section-label">POR QUE ESCOLHER</div><h2>Uma experiência pensada para você.</h2><ul class="benefits">${benefits}</ul></section>`:`<section data-section="faq"><div class="section-label">FAQ</div><h2>Dúvidas rápidas.</h2>${faqs}</section>`).join("");const compact=layoutClass==="compact"?" compact":"",glass=layoutClass==="glass"?" glass":"",rounded=layoutClass==="rounded"?" rounded":"",dark=["dark","bold"].includes(layoutClass)||ink==="#171717",bodyClass=`site ${layoutClass}${compact}${glass}${rounded}`;return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHTML(o.name)}</title><style>*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:${dark?"#0d0f12":"#fafafa"};color:${dark?"#f7f7f7":"#171717"}.site{--a:${accent};min-height:100vh}.nav{padding:22px 7vw;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${dark?"#ffffff18":"#00000010"}}.logo{font-weight:900}.nav span{color:${accent}}.hero{min-height:480px;padding:70px 7vw;display:grid;grid-template-columns:1fr .8fr;gap:50px;align-items:center;background:linear-gradient(135deg,${dark?"#111827":"#fff"},${dark?"#0d0f12":"#f5f5f5"})}.hero h1{font-size:clamp(44px,6vw,78px);line-height:.95;letter-spacing:-4px;margin:15px 0}.hero p{font-size:18px;line-height:1.7;color:${dark?"#b9c0cc":"#5b606b"};max-width:650px}.btn{display:inline-block;margin-top:18px;padding:13px 18px;background:${accent};color:#fff;border-radius:${rounded?"22px":"9px"};font-weight:800}.hero-art img,.hero-media img{width:100%;border-radius:${rounded?"32px":"16px"};display:block}.hero-art{align-self:stretch;display:flex;align-items:center}.hero-art img{max-height:330px;object-fit:cover}section{padding:70px 7vw}.section-label{font-size:10px;letter-spacing:2px;font-weight:900;color:${accent}}section h2{font-size:clamp(30px,4vw,48px);letter-spacing:-2px;margin:9px 0 28px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{padding:22px;border:1px solid ${dark?"#ffffff18":"#e4e4e7"};background:${glass?"#ffffff12":dark?"#15181d":"#fff"};border-radius:${rounded?"28px":"12px"};${glass?"backdrop-filter:blur(10px)":""}}.card .tag{font-size:9px;font-weight:900;color:${accent};letter-spacing:1px}.card h3{margin:18px 0 8px}.card p,.about p,details p{line-height:1.65;color:${dark?"#b9c0cc":"#646873"}.card strong{font-size:20px}.about{display:grid;grid-template-columns:1fr .8fr;gap:50px;align-items:center;background:${dark?"#11151a":"#f1f3f5"}}.benefits{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.benefits li{padding:18px;background:${dark?"#15181d":"#fff"};border-radius:${rounded?"22px":"10px"};font-weight:700}details{padding:18px 0;border-bottom:1px solid ${dark?"#ffffff18":"#00000012"}}summary{cursor:pointer;font-weight:800}footer{padding:30px 7vw;border-top:1px solid ${dark?"#ffffff18":"#00000010"};display:flex;justify-content:space-between;gap:20px;color:${dark?"#aeb5c0":"#666"}}.split .hero{grid-template-columns:.8fr 1fr}.minimal .hero{grid-template-columns:1fr;max-width:1000px}.minimal .hero-art{display:none}.magazine .hero{grid-template-columns:1.2fr .8fr}.bold .hero h1{font-weight:1000}.compact section{padding:45px 7vw}.compact .hero{min-height:400px;padding:50px 7vw}.glass{background:radial-gradient(circle at 20% 0,#ffffff18,transparent 30%),#0f172a}.glass .nav{border-color:#ffffff18}.rounded .card,.rounded .benefits{border-radius:28px}@media(max-width:750px){.hero,.about,.split .hero,.minimal .hero,.magazine .hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.benefits{grid-template-columns:1fr}.hero{padding:50px 6vw}.hero h1{letter-spacing:-2px}section{padding:50px 6vw}}@media(max-width:480px){.grid{grid-template-columns:1fr}.nav{padding:18px 6vw}}</style></head><body class="${bodyClass}"><header class="nav"><div class="logo">${escapeHTML(o.name)} <span>●</span></div><div>${o.cat.label.replace(/s$/,'')}</div></header><main><div class="hero" data-section="hero"><div><div class="section-label">EXPERIÊNCIA ${escapeHTML(o.style.toUpperCase())}</div><h1>${escapeHTML(o.hero)}</h1><p>${escapeHTML(o.sub)}</p><a class="btn" href="#contato">${escapeHTML(o.cta)}</a></div>${o.layout!=="Minimal"?heroLayout:""}</div>${sections}<section id="contato" data-section="contato"><div class="section-label">CONTATO</div><h2>Vamos conversar?</h2><p class="contact-details">Rua Principal, 100 • Centro<br>Seg a Sáb • 09h às 20h</p><div class="contact-actions"></div></section></main><footer><b>${escapeHTML(o.name)}</b><span>Site criado localmente pelo STUDIO SITES.</span></footer></body></html>`}
+
+function parseDoc(html){return new DOMParser().parseFromString(html,"text/html")}
+function cssColor(v){const m={preto:"#0d0f12",escuro:"#0d0f12",branco:"#ffffff",claro:"#fafafa",azul:"#2563eb",verde:"#16a34a",vermelho:"#dc2626"};return m[v]||null}
+function findSection(doc,key){const sections=[...doc.querySelectorAll("[data-section],section")];const k=normalize(key);return sections.find(s=>{const ds=normalize(s.dataset.section||"");const tx=normalize(s.textContent||"");return ds===k||tx.includes(k)})}
+function addSection(doc,kind){if(doc.querySelector(`[data-section="${kind}"]`))return;const main=doc.querySelector("main");if(!main)return;const el=doc.createElement("section");el.dataset.section=kind;const content={promocoes:["PROMOÇÕES","Ofertas especiais para aproveitar agora."],galeria:["GALERIA","Veja alguns momentos e detalhes do nosso trabalho."],localizacao:["LOCALIZAÇÃO","Encontre nosso endereço e veja como chegar."],contato:["CONTATO","Vamos conversar?"],sobre:["SOBRE NÓS","Conheça nossa história, nosso jeito de atender e o que fazemos melhor."],banner:["NOVIDADE","Uma mensagem de destaque para chamar atenção."],depoimentos:["DEPOIMENTOS","Quem conhece recomenda."],faq:["FAQ","Dúvidas rápidas."]}[kind]||[kind.toUpperCase(),"Conteúdo adicionado pelo STUDIO LOCAL AI."];el.innerHTML=`<div class="section-label">${escapeHTML(content[0])}</div><h2>${escapeHTML(content[1])}</h2><p>Conteúdo editável localmente. Você pode pedir para mudar, remover ou reorganizar esta seção.</p>`;main.appendChild(el)}
+function removeSection(doc,key){const k=normalize(key);[...doc.querySelectorAll("[data-section],section")].forEach(s=>{const ds=normalize(s.dataset.section||""),tx=normalize(s.textContent||"");if(ds===k||(k==="galeria"&&tx.includes("galeria"))||(k==="promocao"&&tx.includes("promocao"))||(k==="banner"&&tx.includes("novidade")))s.remove()})}
+function addButton(doc,label){const area=doc.querySelector(".contact-actions")||doc.querySelector(".hero");if(!area)return;const a=doc.createElement("a");a.className="btn";a.href="#contato";a.textContent=label||"FAZER PEDIDO";area.appendChild(a)}
+function contactLabel(kind){return ({whatsapp:"Falar no WhatsApp",instagram:"Instagram",facebook:"Facebook",tiktok:"TikTok",youtube:"YouTube",telegram:"Telegram",linkedin:"LinkedIn",x:"X / Twitter",threads:"Threads",discord:"Discord",pinterest:"Pinterest","google maps":"Google Maps",site:"Nosso Site",telefone:"Ligar",email:"Enviar e-mail"})[kind]||kind}
+function normalizeWaNumber(v){let n=String(v||"").replace(/\D/g,"");if(n.startsWith("00"))n=n.slice(2);if(n.length===10||n.length===11)n="55"+n;return n}
+function addContact(doc,kind,value,message,label,addMode){const area=doc.querySelector(".contact-actions");if(!area)return;const old=[...area.querySelectorAll(`[data-contact="${CSS.escape(kind)}"]`)];if(value){if(!addMode)old.forEach(x=>x.remove());const a=doc.createElement("a");a.className="btn";a.dataset.contact=kind;a.textContent=label||contactLabel(kind);if(kind==="whatsapp"){const n=normalizeWaNumber(value);a.href=`https://wa.me/${n}${message?`?text=${encodeURIComponent(message)}`:""}`;a.target="_blank";a.rel="noopener"}else if(/^https?:\/\//i.test(value)){a.href=value;a.target="_blank";a.rel="noopener"}else if(kind==="telefone")a.href=`tel:${String(value).replace(/\D/g,"")}`;else if(kind==="email")a.href=`mailto:${value}`;else a.href="#contato";area.appendChild(a)}else old.forEach(x=>x.remove())}
+function onlyContacts(doc,kinds){const area=doc.querySelector(".contact-actions");if(!area)return;const keep=new Set(kinds);[...area.querySelectorAll("[data-contact]")].forEach(a=>{if(!keep.has(a.dataset.contact))a.remove()})}
+function applyOperation(doc,op){
+ if(op.action==="remove"&&op.element==="preços"){doc.querySelectorAll(".card strong").forEach(x=>x.remove());return}
+ if(op.action==="remove"&&op.element==="botão"){doc.querySelectorAll(".btn").forEach(x=>x.remove());return}
+ if(op.action==="remove"&&op.element==="subtítulo"){const p=doc.querySelector(".hero > div p");if(p)p.remove();return}
+ if(op.action==="remove"&&op.element==="imagens"){doc.querySelectorAll(".hero-art,.hero-media").forEach(x=>x.remove());return}
+ if(op.action==="add"&&op.element==="botão"){addButton(doc,op.value||"FAZER PEDIDO");return}
+ if(op.action==="add"&&op.element==="galeria"){addSection(doc,"galeria");return}
+ if(op.action==="add"&&op.element==="promocoes"){addSection(doc,"promocoes");return}
+ if(op.action==="add"&&op.element==="localização"){addSection(doc,"localizacao");return}
+ if(op.action==="add"&&op.element==="contato"){addSection(doc,"contato");return}
+ if(op.action==="add_products"){const grid=doc.querySelector(".grid");if(!grid)return;const base=[...grid.querySelectorAll(".card")];for(let i=0;i<op.count;i++){const c=(base[i%Math.max(1,base.length)]||doc.createElement("article")).cloneNode(true);if(c.querySelector("h3"))c.querySelector("h3").textContent=`Novo produto ${i+1}`;grid.appendChild(c)}return}
+ if(op.action==="add_testimonials"){addSection(doc,"depoimentos");return}
+ if(op.action==="remove"&&["galeria","promocao","localizacao","depoimento","faq","secao","banner"].includes(op.element)){removeSection(doc,op.element);return}
+ if(op.action==="change"&&op.element==="nome"){doc.title=op.value;doc.querySelectorAll(".logo,footer b").forEach(x=>x.childNodes[0].nodeValue=op.value+" ");return}
+ if(op.action==="change"&&op.element==="título"){const h=doc.querySelector(".hero h1");if(h)h.textContent=op.value;return}
+ if(op.action==="change"&&op.element==="subtítulo"){const p=doc.querySelector(".hero > div p");if(p)p.textContent=op.value;return}
+ if(op.action==="change"&&op.element==="imagens"){const img=doc.querySelector(".hero img");if(img&&op.value)img.src=op.value;return}
+ if(op.action==="style"&&op.element==="fundo"){const c=cssColor(op.value);if(c)doc.body.style.background=c;return}
+ if(op.action==="style"&&op.element==="botão"){doc.querySelectorAll(".btn").forEach(x=>x.style.padding="18px 28px");return}
+ if(op.action==="style"&&op.element==="hero"){const h=doc.querySelector(".hero");if(h)h.style.minHeight=op.value==="menor"?"360px":"600px";return}
+ if(op.action==="style"&&op.element==="site"){if(op.value==="dark")doc.body.classList.add("dark");if(op.value==="minimal")doc.body.classList.add("minimal");if(op.value==="luxuoso"||op.value==="moderno"){doc.body.style.letterSpacing=".1px";doc.querySelectorAll(".card").forEach(x=>x.style.borderRadius="18px")};return}
+ if(op.action==="move"){const s=findSection(doc,op.from);if(!s)return;if(op.position==="start")doc.querySelector("main").prepend(s);else if(op.position==="end")doc.querySelector("main").appendChild(s);else{const target=findSection(doc,"contato");if(target)target.parentNode.insertBefore(s,target)}return}
+ if(op.action==="duplicate"){const s=findSection(doc,op.element)||doc.querySelector("section");if(s)s.parentNode.insertBefore(s.cloneNode(true),s.nextSibling);return}
+ if(op.action==="contact" ){if(op.mode==="remove")addContact(doc,op.kind,null);else addContact(doc,op.kind,op.value||"#",op.message,op.label,op.mode==="add");return}
+ if(op.action==="contact_only"){onlyContacts(doc,op.kinds);return}
 }
-function localAI(){
- inferCommand();
- const cat=D.categories[state.category]; const style=normalize(state.style);
- const name=cleanText(state.name)||cat.label.replace(/s$/,"")+" "+(state.seed%80+1);
- const color=pick(cat.colors,2);
- const hero=pick(cat.hero,1), sub=pick(cat.sub,3);
- const cta=state.goal==="Agendamento"?"AGENDAR HORÁRIO":state.goal==="Informação"?"CONHECER SERVIÇOS":"QUERO CONHECER";
- const prices=[29,34,39,44,49,54,59,64].map((x,i)=>({x:x+(state.seed+i)%7}));
- const items=cat.items.map((x,i)=>({name:x,price:prices[i].x}));
- const layout=D.layouts[state.seed%D.layouts.length];
- return buildSite({cat,name,hero,sub,cta,items,layout,color,style});
-}
-function localImage(key){
- const c={"burger":"#ff6b35","pizza":"#d62828","restaurant":"#8b5e34","clinic":"#2563eb","barber":"#111827","market":"#16a34a"}[key]||"#6366f1";
- return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="${c}"/><stop offset="1" stop-color="#111827"/></linearGradient></defs><rect width="1200" height="800" fill="url(#g)"/><circle cx="960" cy="150" r="180" fill="white" opacity=".08"/><circle cx="180" cy="690" r="260" fill="white" opacity=".06"/><text x="80" y="370" font-family="Arial" font-size="72" font-weight="700" fill="white">STUDIO SITES</text><text x="84" y="440" font-family="Arial" font-size="30" fill="white" opacity=".82">${String(key).toUpperCase()} • IMAGEM LOCAL</text></svg>`;
-}
-function buildSite(o){
- const img="data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(localImage(o.cat.image))));
- const accent=o.color[0], ink=o.color[1];
- const cards=o.items.slice(0,4).map((it,i)=>`<article class="card"><div class="tag">${i%2?"ESPECIAL":"DESTAQUE"}</div><h3>${escapeHTML(it.name)}</h3><p>${escapeHTML(o.cat.sub[i%o.cat.sub.length])}</p><strong>R$ ${it.price},90</strong></article>`).join("");
- const benefits=o.cat.benefits.map(x=>`<li>✓ ${escapeHTML(x)}</li>`).join("");
- const faqs=["Como funciona o atendimento?","Quais são os horários?","Como faço meu pedido ou agendamento?"].map(q=>`<details><summary>${q}</summary><p>Entre em contato para receber informações atualizadas e combinar o melhor atendimento.</p></details>`).join("");
- let layoutClass=normalize(o.layout);
- let heroLayout=layoutClass==="split"?`<div class="hero-media"><img src="${img}" alt="Imagem local do segmento"></div>`:`<div class="hero-art"><img src="${img}" alt="Imagem local do segmento"></div>`;
- if(layoutClass==="minimal") heroLayout="";
- const sectionOrder=layoutClass==="magazine"?["sobre","cards","benefits","faq"]:["cards","sobre","benefits","faq"];
- const sections=sectionOrder.map(s=>{
-   if(s==="cards")return `<section><div class="section-label">SELEÇÃO DA CASA</div><h2>Feito para dar vontade de voltar.</h2><div class="grid">${cards}</div></section>`;
-   if(s==="sobre")return `<section class="about"><div><div class="section-label">SOBRE</div><h2>Detalhes que fazem a diferença.</h2><p>${escapeHTML(o.sub)}</p><a class="btn" href="#contato">${o.cta}</a></div>${heroLayout}</section>`;
-   if(s==="benefits")return `<section><div class="section-label">POR QUE ESCOLHER</div><h2>Uma experiência pensada para você.</h2><ul class="benefits">${benefits}</ul></section>`;
-   return `<section><div class="section-label">FAQ</div><h2>Dúvidas rápidas.</h2>${faqs}</section>`;
- }).join("");
- const compact=layoutClass==="compact"?" compact":"";
- const glass=layoutClass==="glass"?" glass":"";
- const rounded=layoutClass==="rounded"?" rounded":"";
- const dark=["dark","bold"].includes(layoutClass)||ink==="#171717";
- const bodyClass=`site ${layoutClass}${compact}${glass}${rounded}`;
- return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHTML(o.name)}</title><style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:${dark?"#0d0f12":"#fafafa"};color:${dark?"#f7f7f7":"#171717"}.site{--a:${accent};min-height:100vh}.nav{padding:22px 7vw;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${dark?"#ffffff18":"#00000010"}}.logo{font-weight:900}.nav span{color:${accent}}.hero{min-height:480px;padding:70px 7vw;display:grid;grid-template-columns:1fr .8fr;gap:50px;align-items:center;background:linear-gradient(135deg,${dark?"#111827":"#fff"},${dark?"#0d0f12":"#f5f5f5"})}.hero h1{font-size:clamp(44px,6vw,78px);line-height:.95;letter-spacing:-4px;margin:15px 0}.hero p{font-size:18px;line-height:1.7;color:${dark?"#b9c0cc":"#5b606b"};max-width:650px}.btn{display:inline-block;margin-top:18px;padding:13px 18px;background:${accent};color:#fff;border-radius:${rounded?"22px":"9px"};font-weight:800}.hero-art img,.hero-media img{width:100%;border-radius:${rounded?"32px":"16px"};display:block}.hero-art{align-self:stretch;display:flex;align-items:center}.hero-art img{max-height:330px;object-fit:cover}section{padding:70px 7vw}.section-label{font-size:10px;letter-spacing:2px;font-weight:900;color:${accent}}section h2{font-size:clamp(30px,4vw,48px);letter-spacing:-2px;margin:9px 0 28px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{padding:22px;border:1px solid ${dark?"#ffffff18":"#e4e4e7"};background:${glass?"#ffffff12":dark?"#15181d":"#fff"};border-radius:${rounded?"28px":"12px"};${glass?"backdrop-filter:blur(10px)":""}}.card .tag{font-size:9px;font-weight:900;color:${accent};letter-spacing:1px}.card h3{margin:18px 0 8px}.card p,.about p,details p{line-height:1.65;color:${dark?"#b9c0cc":"#646873"}}.card strong{font-size:20px}.about{display:grid;grid-template-columns:1fr .8fr;gap:50px;align-items:center;background:${dark?"#11151a":"#f1f3f5"}}.benefits{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.benefits li{padding:18px;background:${dark?"#15181d":"#fff"};border-radius:${rounded?"22px":"10px"};font-weight:700}details{padding:18px 0;border-bottom:1px solid ${dark?"#ffffff18":"#00000012"}}summary{cursor:pointer;font-weight:800}footer{padding:30px 7vw;border-top:1px solid ${dark?"#ffffff18":"#00000010"};display:flex;justify-content:space-between;gap:20px;color:${dark?"#aeb5c0":"#666"}}.split .hero{grid-template-columns:.8fr 1fr}.minimal .hero{grid-template-columns:1fr;max-width:1000px}.minimal .hero-art{display:none}.magazine .hero{grid-template-columns:1.2fr .8fr}.bold .hero h1{font-weight:1000}.compact section{padding:45px 7vw}.compact .hero{min-height:400px;padding:50px 7vw}.glass{background:radial-gradient(circle at 20% 0,#ffffff18,transparent 30%),#0f172a}.glass .nav{border-color:#ffffff18}.rounded .card,.rounded .benefits{border-radius:28px}@media(max-width:750px){.hero,.about,.split .hero,.minimal .hero,.magazine .hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.benefits{grid-template-columns:1fr}.hero{padding:50px 6vw}.hero h1{letter-spacing:-2px}section{padding:50px 6vw}}@media(max-width:480px){.grid{grid-template-columns:1fr}.nav{padding:18px 6vw}}
-</style></head><body class="${bodyClass}"><header class="nav"><div class="logo">${escapeHTML(o.name)} <span>●</span></div><div>${o.cat.label.replace(/s$/,"")}</div></header><main><div class="hero"><div><div class="section-label">EXPERIÊNCIA ${escapeHTML(o.style.toUpperCase())}</div><h1>${escapeHTML(o.hero)}</h1><p>${escapeHTML(o.sub)}</p><a class="btn" href="#contato">${escapeHTML(o.cta)}</a></div>${o.layout!=="Minimal"?heroLayout:""}</div>${sections}<section id="contato"><div class="section-label">CONTATO</div><h2>Vamos conversar?</h2><p>Rua Principal, 100 • Centro<br>Seg a Sáb • 09h às 20h</p><a class="btn" href="mailto:contato@exemplo.local">ENTRAR EM CONTATO</a></section></main><footer><b>${escapeHTML(o.name)}</b><span>Site criado localmente pelo STUDIO SITES.</span></footer></body></html>`;
-}
-function applyIntentToSite(html,intent){
- if(!intent)return html;
- if(intent.action==="remove_price"){
-   html=html.replace(/<strong>R\$[^<]*<\/strong>/gi,"");
-   html=html.replace(/<div class="tag">[^<]*<\/div>/gi,m=>/DESTAQUE|ESPECIAL/i.test(m) ? m : "");
-   return html;
- }
- if(intent.action==="add_button"){
-   return html.replace(/<\/div><a class="btn"/i,'<a class="btn" href="#contato">FAZER PEDIDO</a></div><a class="btn"');
- }
- if(intent.action==="modernize"){
-   return html.replace(/letter-spacing:-4px/g,"letter-spacing:-5px").replace(/border-radius:9px/g,"border-radius:14px");
- }
- if(intent.action==="change_hero"){
-   return html.replace(/max-height:330px/g,"max-height:440px").replace(/min-height:480px/g,"min-height:540px");
- }
- return html;
-}
-function validate(html){
- const errors=[];
- ["undefined","NaN","Lorem ipsum","Seu texto aqui","Digite aqui"].forEach(x=>{if(html.toLowerCase().includes(x.toLowerCase()))errors.push(x)});
- if((html.match(/<html\b/gi)||[]).length!==1||!/<\/html>/i.test(html))errors.push("html");
- if((html.match(/<script\b/gi)||[]).length!==(html.match(/<\/script>/gi)||[]).length)errors.push("script");
- if(/\\n/.test(html))errors.push("newline");
- return errors;
-}
-function save(){
- const projects=JSON.parse(localStorage.getItem("studio_projects")||"[]");
- projects.unshift({at:new Date().toISOString(),...state,html:state.html});
- localStorage.setItem("studio_projects",JSON.stringify(projects.slice(0,30)));
- updateMemory();
-}
-function generateWithSeed(){
- state.category=$("#category").value;state.style=$("#style").value;state.goal=$("#goal").value;state.name=$("#siteName").value;state.command=$("#command").value;
- const intent=inferCommand();
- let html=localAI();
- html=applyIntentToSite(html,intent);
- let errs=validate(html), attempts=0;
- while(errs.length&&attempts<3){state.seed++;html=localAI();html=applyIntentToSite(html,intent);errs=validate(html);attempts++}
- if(errs.length){$("#resultInfo").textContent="Não foi possível validar o site.";return}
- state.html=html;$("#preview").srcdoc=html;$("#emptyPreview").style.display="none";
- $("#resultInfo").textContent=`Modelo ${state.seed>>>0} gerado localmente • ${D.categories[state.category].label} • ${D.layouts[state.seed%D.layouts.length]} • validado`;
- save();
-}
-function generate(){
- state.category=$("#category").value;state.style=$("#style").value;state.goal=$("#goal").value;state.name=$("#siteName").value;state.command=$("#command").value;
- state.seed=(Date.now()+Math.floor(Math.random()*100000))>>>0;
- const intent=inferCommand();
- let html=localAI();
- html=applyIntentToSite(html,intent);
- let errs=validate(html), attempts=0;
- while(errs.length&&attempts<3){state.seed++;html=localAI();html=applyIntentToSite(html,intent);errs=validate(html);attempts++}
- if(errs.length){$("#resultInfo").textContent="Não foi possível validar o site.";return}
- state.html=html;$("#preview").srcdoc=html;$("#emptyPreview").style.display="none";
- $("#resultInfo").textContent=`Gerado localmente • ${D.categories[state.category].label} • ${D.layouts[state.seed%D.layouts.length]} • validado`;
- save();
-}
+function applyIntentToSite(html,intent){if(!intent||!intent.ops)return html;if(intent.ops.some(x=>x.action==="learn"))return html;const doc=parseDoc(html);intent.ops.filter(x=>x.action!=="undo"&&x.action!=="redo"&&x.action!=="generate").forEach(op=>applyOperation(doc,op));return "<!doctype html>"+doc.documentElement.outerHTML}
+
+function validate(html){const errors=[];["undefined","NaN","Lorem ipsum","Seu texto aqui","Digite aqui"].forEach(x=>{if(html.toLowerCase().includes(x.toLowerCase()))errors.push(x)});if((html.match(/<html\b/gi)||[]).length!==1||!/<\/html>/i.test(html))errors.push("html");if((html.match(/<script\b/gi)||[]).length!==(html.match(/<\/script>/gi)||[]).length)errors.push("script");if(/\\n/.test(html))errors.push("newline");if(!/<body\b/i.test(html)||!/<main\b/i.test(html))errors.push("estrutura");return [...new Set(errors)]}
+function pushHistory(){if(state.html){state.history.push(state.html);if(state.history.length>50)state.history.shift();state.future=[]}}
+function render(){state.html=state.html.replace(/<!doctype html>\s*<!doctype html>/i,"<!doctype html>");$("#preview").srcdoc=state.html;$("#emptyPreview").style.display="none"}
+function save(){const projects=JSON.parse(localStorage.getItem("studio_projects")||"[]");projects.unshift({at:new Date().toISOString(),...state,history:undefined,future:undefined});localStorage.setItem("studio_projects",JSON.stringify(projects.slice(0,30)));updateMemory()}
+function performCommand(command){state.command=command;const parsed=interpretCommand(command);if(parsed.action==="learn"){return parsed}if(parsed.ops.some(o=>o.action==="undo")){const count=parsed.ops.find(o=>o.action==="undo").count||1;for(let i=0;i<count;i++)if(state.history.length){state.future.push(state.html);state.html=state.history.pop()}render();save();return parsed}if(parsed.ops.some(o=>o.action==="redo")){if(state.future.length){state.history.push(state.html);state.html=state.future.pop();render();save()}return parsed}if(!state.html||parsed.ops.some(o=>o.action==="generate")){state.category=$("#category").value;state.style=$("#style").value;state.goal=$("#goal").value;state.name=$("#siteName").value;state.seed=state.seed||((Date.now()+Math.random()*100000)>>>0);state.html=localAI();pushHistory();state.html=applyIntentToSite(state.html,parsed)}else{pushHistory();state.html=applyIntentToSite(state.html,parsed)}const errs=validate(state.html);if(errs.length){state.html=state.history.pop()||state.html;$("#resultInfo").textContent="A alteração foi bloqueada na validação: "+errs.join(", ");render();return parsed}render();$("#resultInfo").textContent=`STUDIO_LOCAL_AI executou ${parsed.ops.length||1} operação(ões) localmente • validado`;save();return parsed}
+function generate(){state.seed=((Date.now()+Math.floor(Math.random()*100000))>>>0);state.html="";performCommand($("#command").value||`Crie uma ${$("#category").value} ${$("#style").value}`)}
+function regenerate(){state.seed++;state.html="";performCommand($("#command").value||`Crie uma ${$("#category").value} ${$("#style").value}`)}
 function updateMemory(){const p=JSON.parse(localStorage.getItem("studio_projects")||"[]");$("#memoryCount").textContent=p.length}
-function renderFilters(){
- const f=$("#filters"); f.innerHTML="";
- ["Todas",...D.layouts,...Object.keys(D.categories)].forEach(x=>{const b=document.createElement("button");b.textContent=x==="Todas"?"Todas":D.categories[x]?.label||x;b.dataset.filter=x;b.onclick=()=>{document.querySelectorAll(".filters button").forEach(z=>z.classList.remove("active"));b.classList.add("active");renderGrid()};f.appendChild(b)});
- f.firstChild.classList.add("active");
-}
-function renderGrid(){
- const active=document.querySelector(".filters button.active")?.dataset.filter||"Todas",q=normalize($("#search").value);
- const list=D.models.filter(m=>(active==="Todas"||m.layout===active||m.category===active)&&(!q||normalize(m.id+" "+m.name+" "+m.categoryLabel+" "+m.layout).includes(q)));
- $("#modelGrid").innerHTML=list.map(m=>`<article class="model-card"><img src="images/${m.image}.svg" alt=""><div class="mc"><h3>${m.id} — ${m.layout}</h3><p>${m.categoryLabel} • variante ${m.variant}</p><button data-model="${m.id}">VER MODELO</button></div></article>`).join("");
- $("#modelGrid").querySelectorAll("button").forEach(b=>b.onclick=()=>loadModel(b.dataset.model));
-}
-function loadModel(id){const m=D.models.find(x=>x.id===id);if(!m)return;$("#category").value=m.category;$("#style").value=m.layout==="Elegant"?"Elegante":m.layout==="Minimal"?"Minimalista":m.layout;$("#siteName").value="Meu "+m.categoryLabel.replace(/s$/,"");$("#command").value=`Crie uma ${m.category} ${m.layout.toLowerCase()}`;state.seed=hash(id);generateWithSeed();location.hash="gerador"}
-$("#generate").onclick=generate;$("#regenerate").onclick=()=>{state.seed++;generate()};$("#copy").onclick=async()=>{if(state.html){await navigator.clipboard.writeText(state.html);$("#resultInfo").textContent="Código copiado para a área de transferência."}};$("#download").onclick=()=>{if(!state.html)return;const blob=new Blob([state.html],{type:"text/html;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="site-studio-sites.html";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
-$("#search").oninput=renderGrid;$("#clearMemory").onclick=()=>{localStorage.removeItem("studio_projects");updateMemory()};
-renderFilters();renderGrid();updateMemory();
-window.STUDIO_LOCAL_AI={generate,validate,semantic,interpretCommand,canonicalize,applyIntentToSite};
+function renderFilters(){const f=$("#filters");f.innerHTML="";["Todas",...D.layouts,...Object.keys(D.categories)].forEach(x=>{const b=document.createElement("button");b.textContent=x==="Todas"?"Todas":D.categories[x]?.label||x;b.dataset.filter=x;b.onclick=()=>{document.querySelectorAll(".filters button").forEach(z=>z.classList.remove("active"));b.classList.add("active");renderGrid()};f.appendChild(b)});f.firstChild.classList.add("active")}
+function renderGrid(){const active=document.querySelector(".filters button.active")?.dataset.filter||"Todas",q=normalize($("#search").value);const list=D.models.filter(m=>(active==="Todas"||m.layout===active||m.category===active)&&(!q||normalize(m.id+" "+m.name+" "+m.categoryLabel+" "+m.layout).includes(q)));$("#modelGrid").innerHTML=list.map(m=>`<article class="model-card"><img src="images/${m.image}.svg" alt=""><div class="mc"><h3>${m.id} — ${m.layout}</h3><p>${m.categoryLabel} • variante ${m.variant}</p><button data-model="${m.id}">VER MODELO</button></div></article>`).join("");$("#modelGrid").querySelectorAll("button").forEach(b=>b.onclick=()=>loadModel(b.dataset.model))}
+function loadModel(id){const m=D.models.find(x=>x.id===id);if(!m)return;$("#category").value=m.category;$("#style").value=m.layout==="Elegant"?"Elegante":m.layout==="Minimal"?"Minimalista":m.layout;$("#siteName").value="Meu "+m.categoryLabel.replace(/s$/i,"");$("#command").value=`Crie uma ${m.category} ${m.layout.toLowerCase()}`;state.seed=hash(id);state.html="";performCommand($("#command").value);location.hash="gerador"}
+$("#generate").onclick=generate;$("#regenerate").onclick=regenerate;$("#copy").onclick=async()=>{if(state.html){await navigator.clipboard.writeText(state.html);$("#resultInfo").textContent="Código copiado para a área de transferência."}};$("#download").onclick=()=>{if(!state.html)return;const blob=new Blob([state.html],{type:"text/html;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="site-studio-sites.html";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};$("#search").oninput=renderGrid;$("#clearMemory").onclick=()=>{localStorage.removeItem("studio_projects");localStorage.removeItem("studio_ai_memory");state.memory={};updateMemory()};loadMemory();renderFilters();renderGrid();updateMemory();
+window.STUDIO_LOCAL_AI={generate,validate,semantic,interpretCommand,canonicalize,applyIntentToSite,performCommand,learnFromCommand};
 })();
