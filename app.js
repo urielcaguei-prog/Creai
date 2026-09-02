@@ -5,19 +5,123 @@ const D=window.STUDIO_DATA;
 const $=s=>document.querySelector(s);
 const state={category:"hamburgueria",style:"Moderno",goal:"Vendas",name:"",command:"",seed:0,html:""};
 const semantic={
- "moderno":["moderno","contemporâneo","atual","urbano","clean"],
- "luxuoso":["luxuoso","elegante","sofisticado","premium","exclusivo"],
- "barato":["barato","econômico","acessível","preço justo","bom custo-benefício"],
- "rápido":["rápido","ágil","prático","sem complicação"],
- "vendas":["vendas","pedido","comprar","promoção","oferta"],
- "agendamento":["agendamento","horário","marcar","reservar"],
- "hamburgueria":["hamburgueria","burger","hambúrguer","lanche","blend"],
- "pizzaria":["pizzaria","pizza","forno","massa","fatia"],
- "restaurante":["restaurante","menu","chef","gastronomia","prato"],
- "clínica":["clínica","consulta","atendimento","cuidado","especialidade"],
- "barbearia":["barbearia","corte","barba","degradê","barbeiro"],
- "mercado":["mercado","ofertas","compras","hortifruti","mercearia"]
+ "moderno":["moderno","moderna","contemporaneo","contemporânea","atual","urbano","clean","modern"],
+ "luxuoso":["luxuoso","luxuosa","elegante","sofisticado","sofisticada","premium","exclusivo","exclusiva","luxury"],
+ "barato":["barato","barata","economico","econômico","acessivel","acessível","preco justo","bom custo beneficio","bom custo-beneficio"],
+ "rapido":["rapido","rápido","agil","ágil","pratico","prático","sem complicacao","sem complicação","fast"],
+ "vendas":["vendas","venda","pedido","pedir","comprar","compra","promocao","promoção","oferta","sales"],
+ "agendamento":["agendamento","agendar","marcar","marque","horario","horário","reservar","reserva","appointment"],
+ "hamburgueria":["hamburgueria","hamburgueri","hamburguerias","burgueria","burguerias","burger","hamburger","hamburguer"],
+ "pizzaria":["pizzaria","pizaria","pissaria","pizzariaa","pizzarias","pizza","pizzas"],
+ "restaurante":["restaurante","restaurantes","restalrante","restauramte","restaurant"],
+ "clinica":["clinica","clínica","clinicaa","clinicas","clínicas","clinic"],
+ "barbearia":["barbearia","barbeari","barbearias","barber","barbershop"],
+ "mercado":["mercado","mercadoo","mercados","market","supermercado"],
+ "preco":["preco","preços","precos","preço","valor","valores","price","prices","cost"],
+ "remover":["remover","remove","removeu","tirar","tira","tira aí","tira ai","retirar","retira","apagar","apaga","excluir","exclui","deletar","delete","deleta","hide","sem"],
+ "adicionar":["adicionar","add","adiciona","colocar","coloca","botar","bota","inserir","insere","criar","cria","insert"],
+ "alterar":["mudar","muda","trocar","troca","alterar","altera","modificar","modifica","change","edit","edita"],
+ "desfazer":["desfazer","desfaz","volta","voltar","como tava","como estava","undo"],
+ "design":["bonito","bonita","lindo","linda","brabo","braba","maneiro","maneira","sinistro","chave","impactante","bonitão","bonitao","beautiful"],
+ "botao":["botao","botão","botoes","botões","button","buttons"],
+ "hero":["hero","capa","banner","cabecalho","cabeçalho","principal","imagem maior","hero maior"],
+ "menu":["menu","cardapio","cardápio","cardapio","catalogo","catálogo"],
+ "contato":["contato","contact","fale conosco","whatsapp","telefone"],
+ "secao":["secao","seção","parte","bloco","section","bagulho","isso","this"],
+ "gira_carioca":["mano","irmão","irmao","cara","cria","pô","po","qual foi","mó","mo","tá ligado","ta ligado","bota aí","bota ai","tira aí","tira ai","faz aí","faz ai","manda ver","deixa chave","deixa brabo","ficou maneiro","bagulho"]
 };
+
+const typoMap={
+ "renover":"remover","renove":"remover","renovei":"remover",
+ "pizaria":"pizzaria","pissaria":"pizzaria","pizzariaa":"pizzaria",
+ "burgueria":"hamburgueria","burgueri":"hamburgueria","hamburgueri":"hamburgueria",
+ "barbeari":"barbearia","clinicaa":"clinica","restalrante":"restaurante",
+ "mercadoo":"mercado","precoo":"preco","precooo":"preco","precos":"preco",
+ "preços":"preco","valores":"preco","prices":"preco",
+ "removeu":"remover","removee":"remover","tiraaa":"remover","tirar":"remover",
+ "boto":"botao","botao":"botao","secao":"secao","seção":"secao",
+ "moderna":"moderno","modern":"moderno","dark":"dark","more":"mais"
+};
+
+const intentPatterns={
+ REMOVE_PRICE:[
+  /\b(tira|tirar|remove|remover|retira|retirar|apaga|apagar|exclui|excluir|deleta|deletar|hide|delete)\b.*\b(preco|precos|valor|valores|price|prices|cost)\b/i,
+  /\b(preco|precos|preços|valor|valores|price|prices|cost)\b.*\b(sem|remove|tir|apaga|exclui|deleta|hide|delete)\b/i
+ ],
+ ADD_BUTTON:[
+  /\b(bota|botar|coloca|colocar|adiciona|adicionar|add|insert|cria|criar)\b.*\b(botao|button)\b/i
+ ],
+ CHANGE_HERO:[
+  /\b(change|muda|mudar|troca|trocar|altera|alterar)\b.*\b(hero|capa|banner)\b/i
+ ],
+ MODERNIZE:[
+  /\b(deixa|faz|make|change|tornar|torna)\b.*\b(mais )?(moderno|moderna|modern|brabo|braba|maneiro|chave|impactante|bonito|bonita)\b/i
+ ],
+ UNDO:[/\b(volta|voltar|desfaz|desfazer|undo)\b.*\b(como tava|como estava|isso|último|ultimo)?\b/i]
+};
+
+function normalize(s){
+ return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()
+   .replace(/(.)\1{2,}/g,"$1$1").replace(/[^\w\s$.-]/g," ").replace(/\s+/g," ").trim();
+}
+function tokenize(s){return normalize(s).split(/\s+/).filter(Boolean)}
+function levenshtein(a,b){
+ const prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+  const cur=[i];
+  for(let j=1;j<=b.length;j++) cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+  for(let j=0;j<cur.length;j++) prev[j]=cur[j];
+ }
+ return prev[b.length];
+}
+function canonicalize(text){
+ let tokens=tokenize(text);
+ return tokens.map(t=>{
+   if(typoMap[t]) return typoMap[t];
+   let best=t,bestD=99;
+   for(const [k,v] of Object.entries(typoMap)){
+     const d=levenshtein(t,k);
+     if(d<=Math.max(1,Math.floor(k.length*.25)) && d<bestD){bestD=d;best=v}
+   }
+   return best;
+ }).join(" ");
+}
+function hasIntent(text, intent){
+ const n=canonicalize(text);
+ return (intentPatterns[intent]||[]).some(rx=>rx.test(n));
+}
+function semanticScore(text,key){
+ const n=canonicalize(text), words=semantic[key]||[];
+ return words.reduce((score,w)=>score+(n.includes(normalize(w))?1:0),0);
+}
+function detectElement(text){
+ const n=canonicalize(text);
+ if(semanticScore(n,"preco"))return "preços";
+ if(semanticScore(n,"botao"))return "botão";
+ if(semanticScore(n,"hero"))return "hero";
+ if(semanticScore(n,"menu"))return "menu";
+ if(semanticScore(n,"contato"))return "contato";
+ if(semanticScore(n,"secao"))return "seção";
+ return null;
+}
+function interpretCommand(text){
+ const n=canonicalize(text);
+ let category=null,style=null,goal=null;
+ const cats=["hamburgueria","pizzaria","restaurante","clinica","barbearia","mercado"];
+ for(const c of cats)if(semanticScore(n,c)>0){category=c;break}
+ if(semanticScore(n,"moderno")>0)style="Moderno";
+ else if(semanticScore(n,"luxuoso")>0)style="Luxuoso";
+ if(semanticScore(n,"agendamento")>0)goal="Agendamento";
+ else if(semanticScore(n,"vendas")>0)goal="Vendas";
+ let action="generate",element=detectElement(n);
+ if(hasIntent(n,"REMOVE_PRICE") || (semanticScore(n,"preco")>0 && /\bsem\b/.test(n)))action="remove_price";
+ else if((semanticScore(n,"botao")>0 && /\b(pedido|pedir|order)\b/.test(n)) || hasIntent(n,"ADD_BUTTON"))action="add_button";
+ else if(hasIntent(n,"CHANGE_HERO"))action="change_hero";
+ else if(hasIntent(n,"MODERNIZE"))action="modernize";
+ else if(hasIntent(n,"UNDO"))action="undo";
+ return {raw:text,normalized:n,action,element,category,style,goal,confidence:Math.min(1,(Object.values({category,style,goal,element}).filter(Boolean).length+.5)/4)};
+}
+
 function normalize(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()}
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function cleanText(s){
@@ -29,16 +133,12 @@ function cleanText(s){
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return h>>>0}
 function pick(a,n){return a[(state.seed+n)%a.length]}
 function inferCommand(){
- const c=normalize(state.command);
- for(const [key,words] of Object.entries(semantic)){
-   if(words.some(w=>c.includes(normalize(w)))){
-     if(["hamburgueria","pizzaria","restaurante","clinica","barbearia","mercado"].includes(key)) state.category=key;
-     else if(key==="moderno")state.style="Moderno";
-     else if(key==="luxuoso")state.style="Luxuoso";
-     else if(key==="vendas")state.goal="Vendas";
-     else if(key==="agendamento")state.goal="Agendamento";
-   }
- }
+ const parsed=interpretCommand(state.command);
+ state.lastIntent=parsed;
+ if(parsed.category)state.category=parsed.category;
+ if(parsed.style)state.style=parsed.style;
+ if(parsed.goal)state.goal=parsed.goal;
+ return parsed;
 }
 function localAI(){
  inferCommand();
@@ -81,6 +181,24 @@ function buildSite(o){
 *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:${dark?"#0d0f12":"#fafafa"};color:${dark?"#f7f7f7":"#171717"}.site{--a:${accent};min-height:100vh}.nav{padding:22px 7vw;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${dark?"#ffffff18":"#00000010"}}.logo{font-weight:900}.nav span{color:${accent}}.hero{min-height:480px;padding:70px 7vw;display:grid;grid-template-columns:1fr .8fr;gap:50px;align-items:center;background:linear-gradient(135deg,${dark?"#111827":"#fff"},${dark?"#0d0f12":"#f5f5f5"})}.hero h1{font-size:clamp(44px,6vw,78px);line-height:.95;letter-spacing:-4px;margin:15px 0}.hero p{font-size:18px;line-height:1.7;color:${dark?"#b9c0cc":"#5b606b"};max-width:650px}.btn{display:inline-block;margin-top:18px;padding:13px 18px;background:${accent};color:#fff;border-radius:${rounded?"22px":"9px"};font-weight:800}.hero-art img,.hero-media img{width:100%;border-radius:${rounded?"32px":"16px"};display:block}.hero-art{align-self:stretch;display:flex;align-items:center}.hero-art img{max-height:330px;object-fit:cover}section{padding:70px 7vw}.section-label{font-size:10px;letter-spacing:2px;font-weight:900;color:${accent}}section h2{font-size:clamp(30px,4vw,48px);letter-spacing:-2px;margin:9px 0 28px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{padding:22px;border:1px solid ${dark?"#ffffff18":"#e4e4e7"};background:${glass?"#ffffff12":dark?"#15181d":"#fff"};border-radius:${rounded?"28px":"12px"};${glass?"backdrop-filter:blur(10px)":""}}.card .tag{font-size:9px;font-weight:900;color:${accent};letter-spacing:1px}.card h3{margin:18px 0 8px}.card p,.about p,details p{line-height:1.65;color:${dark?"#b9c0cc":"#646873"}}.card strong{font-size:20px}.about{display:grid;grid-template-columns:1fr .8fr;gap:50px;align-items:center;background:${dark?"#11151a":"#f1f3f5"}}.benefits{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.benefits li{padding:18px;background:${dark?"#15181d":"#fff"};border-radius:${rounded?"22px":"10px"};font-weight:700}details{padding:18px 0;border-bottom:1px solid ${dark?"#ffffff18":"#00000012"}}summary{cursor:pointer;font-weight:800}footer{padding:30px 7vw;border-top:1px solid ${dark?"#ffffff18":"#00000010"};display:flex;justify-content:space-between;gap:20px;color:${dark?"#aeb5c0":"#666"}}.split .hero{grid-template-columns:.8fr 1fr}.minimal .hero{grid-template-columns:1fr;max-width:1000px}.minimal .hero-art{display:none}.magazine .hero{grid-template-columns:1.2fr .8fr}.bold .hero h1{font-weight:1000}.compact section{padding:45px 7vw}.compact .hero{min-height:400px;padding:50px 7vw}.glass{background:radial-gradient(circle at 20% 0,#ffffff18,transparent 30%),#0f172a}.glass .nav{border-color:#ffffff18}.rounded .card,.rounded .benefits{border-radius:28px}@media(max-width:750px){.hero,.about,.split .hero,.minimal .hero,.magazine .hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.benefits{grid-template-columns:1fr}.hero{padding:50px 6vw}.hero h1{letter-spacing:-2px}section{padding:50px 6vw}}@media(max-width:480px){.grid{grid-template-columns:1fr}.nav{padding:18px 6vw}}
 </style></head><body class="${bodyClass}"><header class="nav"><div class="logo">${escapeHTML(o.name)} <span>●</span></div><div>${o.cat.label.replace(/s$/,"")}</div></header><main><div class="hero"><div><div class="section-label">EXPERIÊNCIA ${escapeHTML(o.style.toUpperCase())}</div><h1>${escapeHTML(o.hero)}</h1><p>${escapeHTML(o.sub)}</p><a class="btn" href="#contato">${escapeHTML(o.cta)}</a></div>${o.layout!=="Minimal"?heroLayout:""}</div>${sections}<section id="contato"><div class="section-label">CONTATO</div><h2>Vamos conversar?</h2><p>Rua Principal, 100 • Centro<br>Seg a Sáb • 09h às 20h</p><a class="btn" href="mailto:contato@exemplo.local">ENTRAR EM CONTATO</a></section></main><footer><b>${escapeHTML(o.name)}</b><span>Site criado localmente pelo STUDIO SITES.</span></footer></body></html>`;
 }
+function applyIntentToSite(html,intent){
+ if(!intent)return html;
+ if(intent.action==="remove_price"){
+   html=html.replace(/<strong>R\$[^<]*<\/strong>/gi,"");
+   html=html.replace(/<div class="tag">[^<]*<\/div>/gi,m=>/DESTAQUE|ESPECIAL/i.test(m) ? m : "");
+   return html;
+ }
+ if(intent.action==="add_button"){
+   return html.replace(/<\/div><a class="btn"/i,'<a class="btn" href="#contato">FAZER PEDIDO</a></div><a class="btn"');
+ }
+ if(intent.action==="modernize"){
+   return html.replace(/letter-spacing:-4px/g,"letter-spacing:-5px").replace(/border-radius:9px/g,"border-radius:14px");
+ }
+ if(intent.action==="change_hero"){
+   return html.replace(/max-height:330px/g,"max-height:440px").replace(/min-height:480px/g,"min-height:540px");
+ }
+ return html;
+}
 function validate(html){
  const errors=[];
  ["undefined","NaN","Lorem ipsum","Seu texto aqui","Digite aqui"].forEach(x=>{if(html.toLowerCase().includes(x.toLowerCase()))errors.push(x)});
@@ -97,8 +215,11 @@ function save(){
 }
 function generateWithSeed(){
  state.category=$("#category").value;state.style=$("#style").value;state.goal=$("#goal").value;state.name=$("#siteName").value;state.command=$("#command").value;
- let html=localAI(), errs=validate(html), attempts=0;
- while(errs.length&&attempts<3){state.seed++;html=localAI();errs=validate(html);attempts++}
+ const intent=inferCommand();
+ let html=localAI();
+ html=applyIntentToSite(html,intent);
+ let errs=validate(html), attempts=0;
+ while(errs.length&&attempts<3){state.seed++;html=localAI();html=applyIntentToSite(html,intent);errs=validate(html);attempts++}
  if(errs.length){$("#resultInfo").textContent="Não foi possível validar o site.";return}
  state.html=html;$("#preview").srcdoc=html;$("#emptyPreview").style.display="none";
  $("#resultInfo").textContent=`Modelo ${state.seed>>>0} gerado localmente • ${D.categories[state.category].label} • ${D.layouts[state.seed%D.layouts.length]} • validado`;
@@ -107,8 +228,11 @@ function generateWithSeed(){
 function generate(){
  state.category=$("#category").value;state.style=$("#style").value;state.goal=$("#goal").value;state.name=$("#siteName").value;state.command=$("#command").value;
  state.seed=(Date.now()+Math.floor(Math.random()*100000))>>>0;
- let html=localAI(), errs=validate(html), attempts=0;
- while(errs.length&&attempts<3){state.seed++;html=localAI();errs=validate(html);attempts++}
+ const intent=inferCommand();
+ let html=localAI();
+ html=applyIntentToSite(html,intent);
+ let errs=validate(html), attempts=0;
+ while(errs.length&&attempts<3){state.seed++;html=localAI();html=applyIntentToSite(html,intent);errs=validate(html);attempts++}
  if(errs.length){$("#resultInfo").textContent="Não foi possível validar o site.";return}
  state.html=html;$("#preview").srcdoc=html;$("#emptyPreview").style.display="none";
  $("#resultInfo").textContent=`Gerado localmente • ${D.categories[state.category].label} • ${D.layouts[state.seed%D.layouts.length]} • validado`;
@@ -130,5 +254,5 @@ function loadModel(id){const m=D.models.find(x=>x.id===id);if(!m)return;$("#cate
 $("#generate").onclick=generate;$("#regenerate").onclick=()=>{state.seed++;generate()};$("#copy").onclick=async()=>{if(state.html){await navigator.clipboard.writeText(state.html);$("#resultInfo").textContent="Código copiado para a área de transferência."}};$("#download").onclick=()=>{if(!state.html)return;const blob=new Blob([state.html],{type:"text/html;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="site-studio-sites.html";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
 $("#search").oninput=renderGrid;$("#clearMemory").onclick=()=>{localStorage.removeItem("studio_projects");updateMemory()};
 renderFilters();renderGrid();updateMemory();
-window.STUDIO_LOCAL_AI={generate,validate,semantic};
+window.STUDIO_LOCAL_AI={generate,validate,semantic,interpretCommand,canonicalize,applyIntentToSite};
 })();
