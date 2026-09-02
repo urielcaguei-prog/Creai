@@ -1,56 +1,9 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111827"><title>STUDIO SITES — IA Local</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<header class="topbar">
-  <a class="brand" href="#inicio">STUDIO <span>SITES</span></a>
-  <nav><a href="#gerador">Studio AI</a><a href="#catalogo">600 modelos</a><a href="#memoria">Memória</a></nav>
-</header>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0d12"><title>STUDIO SITES — Studio Local AI</title><link rel="stylesheet" href="styles.css"></head><body>
+<header class="topbar"><a class="brand" href="#studio">STUDIO <span>SITES</span></a><nav><a href="#studio">Studio AI</a><a href="#catalogo">600 modelos</a><a href="#memoria">Memória</a></nav></header>
 <main>
-<section id="inicio" class="hero-app">
-  <div class="hero-copy"><span class="eyebrow">100% LOCAL • OFFLINE • SEM API</span>
-    <h1>Crie sites com a <strong>STUDIO AI</strong>.</h1>
-    <p>Uma inteligência local baseada em vocabulário, contexto, regras, combinações e templates. Depois de baixar os arquivos, ela continua funcionando sem internet.</p>
-    <div class="stats"><b>600</b><small>modelos</small><b>6</b><small>categorias</small><b>10</b><small>layouts</small></div>
-  </div>
-  <div class="panel" id="gerador">
-    <div class="panel-title"><span>✦</span> STUDIO AI</div>
-    <label>Categoria<select id="category"><option value="hamburgueria">Hamburgueria</option><option value="pizzaria">Pizzaria</option><option value="restaurante">Restaurante</option><option value="clinica">Clínica</option><option value="barbearia">Barbearia</option><option value="mercado">Mercado</option></select></label>
-    <label>Estilo<select id="style"><option>Moderno</option><option>Elegante</option><option>Minimalista</option><option>Urbano</option><option>Luxuoso</option><option>Clean</option><option>Arrojado</option></select></label>
-    <label>Objetivo<select id="goal"><option>Vendas</option><option>Apresentação</option><option>Agendamento</option><option>Informação</option></select></label>
-    <label>Nome<input id="siteName" placeholder="Minha empresa" maxlength="60"></label>
-    <label>Comando local <input id="command" placeholder="Ex.: Crie uma hamburgueria moderna"></label>
-    <button class="primary" id="generate">GERAR / EXECUTAR ALTERAÇÕES</button>
-    <div class="local-status"><i></i> Motor local ativo — nenhuma API</div>
-    <div class="local-status">Entende erros de digitação, português informal, gírias, carioca, inglês e comandos mistos.</div>
-  </div>
-</section>
-
-<section class="workspace">
-  <div class="toolbar">
-    <div><h2>Seu site</h2><p id="resultInfo">Gere um site para visualizar aqui.</p></div>
-    <div class="actions"><button id="regenerate">REGENERAR</button><button id="copy">COPIAR CÓDIGO</button><button id="download">BAIXAR SITE EM PDF</button></div>
-  </div>
-  <div class="preview-wrap"><iframe id="preview" title="Preview do site gerado" sandbox="allow-scripts"></iframe>
-    <div id="emptyPreview">Seu preview aparecerá aqui</div>
-  </div>
-</section>
-
-<section id="catalogo" class="catalog">
- <div class="section-head"><div><span class="eyebrow">CATÁLOGO LOCAL</span><h2>600 modelos completos</h2><p>100 por categoria • 60 por layout • estruturas realmente diferentes.</p></div>
- <input id="search" placeholder="Buscar modelo..."></div>
- <div class="filters" id="filters"></div><div class="model-grid" id="modelGrid"></div>
-</section>
-
-<section id="memoria" class="memory">
- <div><span class="eyebrow">LOCALSTORAGE</span><h2>Memória do projeto</h2><p>Projetos, preferências e histórico ficam somente neste navegador.</p></div>
- <div class="memory-card"><b id="memoryCount">0</b><span>projetos salvos</span><button id="clearMemory">LIMPAR MEMÓRIA LOCAL</button></div>
-</section>
-</main>
-<footer><b>STUDIO SITES</b><span>IA própria local • HTML • CSS • JavaScript • GitHub Pages</span></footer>
-<script src="data.js"></script><script src="app.js"></script>
-</body></html>
+<section id="studio" class="app-hero"><div class="intro"><span class="eyebrow">STUDIO LOCAL AI • 100% LOCAL • SEM API</span><h1>Construa e edite sites<br><em>conversando.</em></h1><p>Digite o que você quer. O motor local interpreta, executa no site atual, valida e atualiza o preview.</p><div class="chips"><span>600 modelos</span><span>6 categorias</span><span>10 layouts</span><span>offline</span></div></div>
+<div class="studio-card"><div class="card-head"><b>✦ STUDIO LOCAL AI</b><span class="online">● LOCAL</span></div><div class="fields"><label>Categoria<select id="category"><option value="hamburgueria">Hamburgueria</option><option value="pizzaria">Pizzaria</option><option value="restaurante">Restaurante</option><option value="clinica">Clínica</option><option value="barbearia">Barbearia</option><option value="mercado">Mercado</option></select></label><label>Estilo<select id="style"><option>Moderno</option><option>Profissional</option><option>Luxuoso</option><option>Elegante</option><option>Minimalista</option><option>Dark</option><option>Clean</option><option>Arrojado</option></select></label><label>Nome<input id="siteName" maxlength="80" placeholder="Nome do negócio (opcional)"></label></div><textarea id="command" placeholder="Ex.: crie uma pizzaria sem preço com fundo luxuoso. Depois continue editando: coloque WhatsApp 12996211080, mude a fonte para Poppins..."></textarea><div class="command-row"><button id="execute" class="primary">GERAR / EXECUTAR ALTERAÇÕES</button><button id="undo">DESFAZER</button><button id="redo">REFAZER</button></div><div id="status" class="status">Motor local pronto. Nenhum dado sai deste navegador.</div></div></section>
+<section class="workspace"><div class="workspace-head"><div><span class="eyebrow">PREVIEW REAL</span><h2>Seu site</h2><p id="resultInfo">Digite um comando para começar.</p></div><div class="toolbar"><button id="regenerate">REGENERAR</button><button id="copy">COPIAR CÓDIGO</button><button id="pdf">BAIXAR SITE EM PDF</button></div></div><div class="preview-box"><iframe id="preview" title="Preview do site" sandbox="allow-scripts"></iframe><div id="empty">O site aparecerá aqui</div></div></section>
+<section id="catalogo" class="catalog"><div class="section-head"><div><span class="eyebrow">CATÁLOGO LOCAL</span><h2>600 modelos</h2><p>100 por categoria • 60 por layout • sem botão Personalizar.</p></div><input id="search" placeholder="Pesquisar modelo..."></div><div class="filters" id="filters"></div><div id="modelGrid" class="model-grid"></div></section>
+<section id="memoria" class="memory"><div><span class="eyebrow">MEMÓRIA LOCAL</span><h2>Preferências e histórico</h2><p>Aliases, comandos e projetos ficam no dispositivo.</p></div><div class="memory-card"><b id="memoryCount">0</b><span>projetos</span><button id="clearMemory">LIMPAR MEMÓRIA</button></div></section>
+</main><footer><b>STUDIO SITES</b><span>HTML • CSS • JavaScript • GitHub Pages • sem API externa</span></footer><script src="models.js"></script><script src="app.js"></script></body></html>

@@ -1,21 +1,22 @@
-# STUDIO SITES
+# STUDIO SITES — STUDIO LOCAL AI
 
-Projeto estático de geração local de sites.
+Construtor e editor de sites por linguagem natural, executado localmente no navegador.
 
-## Características
-- 100% HTML/CSS/JavaScript.
-- Sem API, backend, login ou banco online.
-- Motor `STUDIO_LOCAL_AI` baseado em regras, vocabulário semântico, contexto, templates, variações e memória `localStorage`.
-- Exatamente 600 modelos: 100 para cada uma das 6 categorias.
-- Exatamente 60 modelos para cada um dos 10 layouts.
-- Imagens locais em `images/`.
-- Preview com `iframe.srcdoc`.
-- Busca e filtros.
-- Gerar, regenerar, copiar código e baixar site.
-- Compatível com hospedagem estática, incluindo GitHub Pages.
+## Garantias da versão
+- Sem OpenAI, Gemini, Claude, Groq, OpenRouter ou API externa de IA.
+- Sem API key e sem backend obrigatório.
+- Geração/edição em JavaScript local.
+- Memória e histórico no localStorage.
+- Multi-intent: uma mensagem pode alterar vários elementos.
+- Preview real em iframe/srcdoc.
+- Imagens só entram quando solicitadas e usam arquivos JPG locais.
+- WhatsApp usa links wa.me reais para números fornecidos pelo usuário.
+- Preços podem ser removidos globalmente.
+- Fonte e cor da fonte são intenções separadas.
+- Hero/background respeitam pedidos explícitos de imagem.
+- Desfazer/refazer.
+- PDF local, somente PDF, sem código-fonte.
+- 600 modelos: 100 por categoria e 60 por layout.
+- Responsivo para celular, tablet e desktop.
 
-## Offline
-Depois de baixar/clonar a pasta, abra `index.html`. Não há chamadas `fetch`, XHR, CDN, fonte externa, API ou servidor obrigatório.
-
-## Observação sobre a “IA”
-É uma IA local determinística/estocástica baseada em conhecimento e regras programadas no JavaScript. Não é um modelo neural remoto e não faz alegações de conexão com serviços externos.
+Abra `index.html` diretamente ou publique a pasta em GitHub Pages.
