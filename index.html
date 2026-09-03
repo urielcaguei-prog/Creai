@@ -4,11 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Studio Sites — crie sites profissionais conversando com uma IA local.">
-  <title>Studio Sites — Crie sites incríveis com IA</title>
+  <title>Studio Sites — Crie sites profissionais com IA</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <header class="topbar">
+      <div class="logo">STUDIO SITES</div>
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="#inicio">Início</a>
+        <a href="#criar">Criar com IA</a>
+        <a href="#projetos">Projetos</a>
+        <a href="#modelos">Modelos</a>
+      </nav>
+      <div class="top-actions"><button class="btn primary" data-static-start>Criar site</button></div>
+    </header>
+    <main>
+      <section class="hero" id="inicio">
+        <div>
+          <span class="eyebrow">✦ Criação de sites por IA</span>
+          <h1>Crie sites profissionais com IA.</h1>
+          <p>Descreva o site que você quer e a IA constrói tudo para você.</p>
+          <div class="hero-actions"><button class="btn primary" data-static-start>Começar agora →</button></div>
+        </div>
+        <div class="hero-art" aria-hidden="true"><div class="art-browser"><div class="art-top"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><div class="art-site"><span>STUDIO SITES</span><h3>Uma ideia.<br>Um site completo.</h3><p>Design, conteúdo e estrutura criados a partir da sua conversa.</p><div class="fake-cards"><div class="fake-card"></div><div class="fake-card"></div><div class="fake-card"></div></div></div></div></div>
+      </section>
+      <section class="section" id="criar"><div class="section-head"><div><h2>Você conversa. A IA constrói.</h2><p>Sem HTML, CSS ou JavaScript para aprender.</p></div></div><div class="feature-grid"><div class="feature"><div class="feature-icon">01</div><h3>Descreva naturalmente</h3><p>“Cria uma pizzaria moderna, escura, com fotos e WhatsApp.”</p></div><div class="feature"><div class="feature-icon">02</div><h3>Refine conversando</h3><p>“Tira os preços”, “deixa premium”, “adiciona depoimentos”.</p></div><div class="feature"><div class="feature-icon">03</div><h3>Exporte o resultado</h3><p>Baixe seu site para publicar em hospedagem estática.</p></div></div></section>
+    </main>
+    <noscript><div class="modal-backdrop" style="position:fixed"><div class="modal"><h2>JavaScript está desativado</h2><p>Ative o JavaScript no navegador para usar o criador com IA.</p></div></div></noscript>
+  </div>
   <script src="assets/app.js" defer></script>
+  <script>document.querySelectorAll('[data-static-start]').forEach(function(b){b.addEventListener('click',function(){location.hash='criar';window.scrollTo({top:0,behavior:'smooth'});});});</script>
 </body>
 </html>
