@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>Rotina Saitama — Meu Treino</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1020;color:#fff;min-height:100vh}
+  .wrap{max-width:720px;margin:auto;padding:24px}
+  .hero{background:linear-gradient(145deg,#171f38,#10162a);border:1px solid #293451;border-radius:24px;padding:24px;box-shadow:0 15px 50px #0005}
+  .tag{display:inline-block;background:#f59e0b;color:#111827;font-weight:800;padding:6px 10px;border-radius:999px;font-size:12px}
+  h1{font-size:32px;margin:12px 0 6px}
+  .sub{color:#aeb8d0;margin:0 0 20px}
+  .clock{font-size:46px;font-weight:900;letter-spacing:1px}
+  .next{margin-top:12px;padding:14px;background:#0b1224;border-radius:16px;color:#dbe4ff}
+  button{border:0;border-radius:14px;padding:13px 16px;font-weight:800;cursor:pointer;margin:6px 4px 0 0}
+  .primary{background:#f59e0b;color:#111827}.secondary{background:#26314c;color:white}
+  .schedule{margin-top:18px;display:grid;gap:10px}
+  .item{display:flex;align-items:center;gap:14px;background:#141c31;border:1px solid #26314c;border-radius:16px;padding:14px}
+  .time{font-weight:900;width:58px}.emoji{font-size:23px}.desc{font-weight:700}.muted{color:#9eabc5;font-size:13px}
+  .done{opacity:.45}.current{border-color:#f59e0b;box-shadow:0 0 0 1px #f59e0b55}
+  .note{font-size:13px;color:#9eabc5;margin-top:16px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">MODO SAITAMA</span>
+    <h1>Minha Rotina 🥊</h1>
+    <p class="sub">Escola • treino • diversão • descanso</p>
+    <div class="clock" id="clock">--:--</div>
+    <div class="next" id="next">Carregando...</div>
+    <div>
+      <button class="primary" id="notify">🔔 Ativar notificações</button>
+      <button class="secondary" id="test">🔔 Testar</button>
+    </div>
+  </section>
+
+  <div class="schedule" id="schedule"></div>
+  <p class="note">
+    As notificações funcionam enquanto esta página estiver aberta e o navegador permitir notificações.
+    Para notificações mesmo com o site fechado, ele precisa ser instalado como PWA e ter um serviço de notificações.
+    O treino é leve e pensado como rotina recreativa, não como treino profissional.
+  </p>
+</div>
+
+<script>
+const routine = [
+ ["06:00","🌅","Acordar e se arrumar"],
+ ["06:30","🍞","Café da manhã"],
+ ["07:00","🏫","Escola"],
+ ["12:30","🍛","Almoço"],
+ ["13:00","😌","Descanso"],
+ ["13:30","📚","Tarefas da escola"],
+ ["14:00","🥊","Treino"],
+ ["14:30","🚿","Banho + água"],
+ ["15:00","🎮","Tempo livre"],
+ ["17:00","🍽️","Comer alguma coisa"],
+ ["17:30","🧼","Se preparar para dormir"],
+ ["18:00","😴","Dormir"]
+];
+
+let notified = {};
+function mins(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+function current(){const d=new Date();return d.getHours()*60+d.getMinutes()}
+
+function render(){
+  const now=current();
+  const box=document.getElementById("schedule");
+  box.innerHTML="";
+  let next=null, active=null;
+  routine.forEach((r,i)=>{
+    const m=mins(r[0]);
+    const diff=m-now;
+    if(diff>=0 && !next) next={r,diff};
+    if(i<routine.length-1 && now>=m && now<mins(routine[i+1][0])) active=i;
+    if(i===routine.length-1 && now>=m) active=i;
+    const el=document.createElement("div");
+    el.className="item "+(active===i?"current":"")+(now>m?" done":"");
+    el.innerHTML=`<div class="time">${r[0]}</div><div class="emoji">${r[1]}</div><div><div class="desc">${r[2]}</div><div class="muted">${active===i?"Agora":"Rotina"}</div></div>`;
+    box.appendChild(el);
+  });
+  document.getElementById("next").textContent = next
+    ? `Próximo: ${next.r[1]} ${next.r[2]} às ${next.r[0]}${next.diff===0?" — agora!":""}`
+    : "A rotina de hoje terminou. Hora de descansar 😴";
+}
+
+function tick(){
+  const d=new Date();
+  document.getElementById("clock").textContent =
+    d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  render();
+  const key=d.toDateString()+"-"+d.getHours()+":"+d.getMinutes();
+  routine.forEach(r=>{
+    if(r[0]===`${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}` && !notified[key]){
+      notified[key]=true;
+      if(Notification.permission==="granted"){
+        new Notification("⏰ Rotina Saitama", {body:`Agora: ${r[1]} ${r[2]}`});
+      }
+    }
+  });
+}
+document.getElementById("notify").onclick=async()=>{
+  if(!("Notification" in window)){alert("Seu navegador não suporta notificações.");return}
+  const p=await Notification.requestPermission();
+  alert(p==="granted"?"Notificações ativadas! 🔔":"Permissão de notificações não concedida.");
+};
+document.getElementById("test").onclick=()=>{
+  if(Notification.permission==="granted") new Notification("🥊 Teste da rotina", {body:"As notificações estão funcionando!"});
+  else alert("Primeiro toque em “Ativar notificações”.");
+};
+tick(); setInterval(tick,1000);
+</script>
+</body>
+</html>
