@@ -1,12 +1,16 @@
-# STUDIO SITES
+STUDIO SITES — RECONSTRUÍDO
+===========================
+Interface principal reconstruída do zero.
 
-Catálogo estático com exatamente 600 modelos: 100 por categoria e 60 por layout.
+- UI profissional para produto de criação de sites.
+- Foco principal em CRIAR COM IA.
+- Catálogo de 600 modelos preservado.
+- 6 categorias / 10 estilos.
+- Cards visuais, filtros, busca, ordenação e paginação.
+- Preview real em modal via srcdoc.
+- Preview responsivo e tela cheia.
+- Imagens locais.
+- Sem API externa, sem backend obrigatório.
+- Layout responsivo.
 
-## GitHub Pages
-Envie esta pasta para a raiz do repositório e publique pela branch `main` / pasta `/ (root)`. Não requer Node, PHP, Python, backend, banco ou API.
-
-## Imagens
-As 600 imagens são SVGs locais em `images/`, organizadas por categoria e referenciadas com caminhos relativos.
-
-## Preview
-A prévia usa `iframe.srcdoc` para renderizar cada modelo como site, sem exibir HTML escapado nem caracteres `\n`.
+Arquivos principais: index.html, css/catalog.css, js/catalog.js, js/models.js, images/
