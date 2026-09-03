@@ -1,16 +1,27 @@
-STUDIO SITES — RECONSTRUÍDO
-===========================
-Interface principal reconstruída do zero.
+# Studio Sites
 
-- UI profissional para produto de criação de sites.
-- Foco principal em CRIAR COM IA.
-- Catálogo de 600 modelos preservado.
-- 6 categorias / 10 estilos.
-- Cards visuais, filtros, busca, ordenação e paginação.
-- Preview real em modal via srcdoc.
-- Preview responsivo e tela cheia.
-- Imagens locais.
-- Sem API externa, sem backend obrigatório.
-- Layout responsivo.
+Plataforma estática de criação de sites por IA local.
 
-Arquivos principais: index.html, css/catalog.css, js/catalog.js, js/models.js, images/
+## Como usar
+Abra `index.html` em um navegador moderno. Não é necessário servidor, API key ou backend.
+
+## GitHub Pages
+Envie todos os arquivos deste diretório para um repositório e ative GitHub Pages apontando para a raiz.
+
+## O que já está implementado
+- Interface responsiva Studio Sites.
+- Criador por conversa em português brasileiro.
+- Interpretação local de categorias, gírias, erros comuns e alterações múltiplas.
+- Preview visual do site.
+- Memória local via localStorage.
+- Projetos.
+- Undo/Redo.
+- 10 estilos de referência.
+- Exportação ZIP.
+- Exportação PDF real.
+- WhatsApp funcional quando o usuário fornece o número.
+- Contatos não inventados.
+- Remoção real de preços/imagens/seções.
+- Sem API key e sem backend obrigatório.
+
+Observação: a "IA" nesta edição é um interpretador local determinístico, adequado para uma experiência offline. Para geração semântica aberta equivalente a um LLM, seria necessário um modelo executado localmente no navegador ou um backend/modelo externo.
